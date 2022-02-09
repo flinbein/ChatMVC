@@ -1,0 +1,17 @@
+name: ChatMVC
+version: ${project.version}
+description: ${plugin-description}
+api-version: ${spigot-api-version}
+authors: [DPOH-VAR, MYXOMOPX]
+database: false
+main: ru.flinbein.chatmvc.ChatMVCPlugin
+
+libraries:
+  - org.freemarker:freemarker:2.3.31
+
+commands:
+  ^:
+    description: Chat MVC
+    aliases: ['/^']
+    usage: /^
+    permission: *

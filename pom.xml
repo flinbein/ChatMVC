@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>ChatMVC</name>
+    <artifactId>chatmvc</artifactId>
+    <groupId>ru.flinbein</groupId>
+    <version>1.0</version>
+    <packaging>jar</packaging>
+
+    <developers>
+        <developer>
+            <name>MYXOMOPX</name>
+            <email>myxomopx@gmail.com</email>
+            <url>https://github.com/myxomopx</url>
+        </developer>
+        <developer>
+            <name>DPOHVAR</name>
+            <email>dpohvar@gmail.com</email>
+            <url>https://github.com/dpohvar</url>
+        </developer>
+    </developers>
+
+
+    <properties>
+        <target-java-version>17</target-java-version>
+        <spigot-version>1.17.1-R0.1-SNAPSHOT</spigot-version>
+        <spigot-api-version>1.17</spigot-api-version>
+        <plugin-description>Chat MVC</plugin-description>
+
+
+    </properties>
+
+    <repositories>
+        <repository>
+            <id>spigot-repo</id>
+            <url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
+        </repository>
+    </repositories>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>${spigot-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.31</version>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}</finalName>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${target-java-version}</source>
+                    <target>${target-java-version}</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.2</version>
+            </plugin>
+
+        </plugins>
+    </build>
+
+
+</project>
