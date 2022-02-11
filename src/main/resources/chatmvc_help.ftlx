@@ -1,14 +1,32 @@
 <TextComponent>
     <TextComponent endl="true">
 
-        <Text value="Chat MVC Plugin"/>
-        <Tooltip>
-            <Text color="ORANGE" value="v."/>
-            <Text color="YELLOW" value="${project.version}"/>
-        </Tooltip>
+        <TextComponent value="Chat MVC Plugin"/>
+        <HoverText>
+            <TextComponent value="Chat MVC Plugin"/>
+        </HoverText>
+        <HoverEntity id="minecraft:horse" type="type">
+            <TextComponent value="EntityName alalala"/>
+        </HoverEntity>
+        <HoverItem id="minecraft:stone" count="22" tag="{display:{name:bla}}"/>
     </TextComponent>
 
-    <TextComponent endl="true">
+    <TextComponent endl="true" click="url:http://xxx">
+        <Text>${playerName}, you can view help at</Text>
+    </TextComponent>
+    <TextComponent endl="true" click="copy:value">
+        <Text>${playerName}, you can view help at</Text>
+    </TextComponent>
+    <TextComponent endl="true" click="page:3">
+        <Text>${playerName}, you can view help at</Text>
+    </TextComponent>
+    <TextComponent endl="true" click="run:/reload confirm">
+        <Text>${playerName}, you can view help at</Text>
+    </TextComponent>
+    <TextComponent endl="true" click="suggest:/reload">
+        <Text>${playerName}, you can view help at</Text>
+    </TextComponent>
+    <TextComponent endl="true" click="method:controllerMethod">
         <Text>${playerName}, you can view help at</Text>
     </TextComponent>
 
