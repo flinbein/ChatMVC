@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<text xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="./chatMvcScheme.xsd">
+
+    однажды в студёную зимнюю пору<br/>
+
+    <text color="yellow">
+        лошадка
+        <hover-text color="aqua" text="ЛОШАДКА: ">
+            животное такое.<br/>HoverEntity не работает(
+        </hover-text>
+    </text>
+    <space/>примёрзла<space/> <text obfuscated="true" color="gold">сурово</text><space/>к забору
+
+</text>

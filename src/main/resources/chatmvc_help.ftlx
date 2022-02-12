@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Text xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="chatMvcScheme.xsd">
+<Text xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="./chatMvcScheme.xsd">
     <Text endl="true">
 
-        <Translatable translate="" bold="true" color="#324383" onclick="page:0"/>
+        <Translatable translate="" bold="true" color="#324383" onclick=""/>
 
         <Text text="Chat MVC Plugin"/>
         <Text text="Chat MVC Plugin"/>
