@@ -2,6 +2,7 @@ package ru.flinbein.chatmvc.xml;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
+import net.md_5.bungee.chat.ComponentSerializer;
 import org.w3c.dom.*;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -36,6 +37,7 @@ public class MVCXmlParser {
             case "TranslatableComponent" -> parseTranslatableComponent(element);
             default -> throw new RuntimeException("Unknown component - "+type);
         };
+        ComponentSerializer r;
 
         if (element.hasAttribute("bold")) {
             component.setBold(element.getAttribute("bold").equals("true"));
