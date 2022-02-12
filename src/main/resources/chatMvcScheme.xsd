@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:element name="Text" type="Text"/>
+   <xs:element name="Keybind" type="Keybind"/>
+   <xs:element name="Score" type="Score"/>
+   <xs:element name="Translatable" type="Translatable"/>
+   <xs:element name="Selector" type="Selector"/>
+
+   <xs:complexType name="Base" mixed="true">
+      <xs:complexContent>
+         <xs:extension base="BaseContent">
+            <xs:choice maxOccurs="1" minOccurs="0">
+               <xs:element name="HoverText" type="HoverText" maxOccurs="1" minOccurs="0"/>
+               <xs:element name="HoverItem" type="HoverItem" maxOccurs="1" minOccurs="0"/>
+               <xs:element name="HoverEntity" type="HoverEntity" maxOccurs="1" minOccurs="0"/>
+            </xs:choice>
+            <xs:attribute name="endl" type="xs:boolean" default="false"/>
+            <xs:attribute name="bold" type="xs:boolean" default="false"/>
+            <xs:attribute name="italic" type="xs:boolean" default="false"/>
+            <xs:attribute name="underlined" type="xs:boolean" default="false"/>
+            <xs:attribute name="strikethrough" type="xs:boolean" default="false"/>
+            <xs:attribute name="obfuscated" type="xs:boolean" default="false"/>
+            <xs:attribute name="insertion" type="xs:string"/>
+            <xs:attribute name="color" type="color"/>
+            <xs:attribute name="font" type="xs:string"/>
+            <xs:attribute name="onclick" type="onclick"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="BaseContent" mixed="true">
+      <xs:choice maxOccurs="unbounded" minOccurs="0">
+         <xs:element name="Text" type="Text" maxOccurs="unbounded" minOccurs="0"/>
+         <xs:element name="Keybind" type="Keybind" maxOccurs="unbounded" minOccurs="0"/>
+         <xs:element name="Score" type="Score" maxOccurs="unbounded" minOccurs="0"/>
+         <xs:element name="Translatable" type="Translatable" maxOccurs="unbounded" minOccurs="0"/>
+         <xs:element name="Selector" type="Selector" maxOccurs="unbounded" minOccurs="0"/>
+      </xs:choice>
+   </xs:complexType>
+
+   <xs:complexType name="Text" mixed="true">
+      <xs:complexContent>
+         <xs:extension base="Base">
+            <xs:attribute name="text" type="xs:string"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="TextString" mixed="true">
+      <xs:complexContent>
+         <xs:extension base="Base">
+            <xs:attribute name="text" type="xs:string"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="HoverText" mixed="true">
+      <xs:complexContent>
+         <xs:extension base="Text">
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="HoverEntity" mixed="true">
+      <xs:complexContent>
+         <xs:extension base="Text">
+            <xs:attribute name="type" type="xs:string" use="required"/>
+            <xs:attribute name="id" type="UUID"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="HoverItem">
+      <xs:attribute name="id" type="xs:string" use="required"/>
+      <xs:attribute name="count" type="xs:string"/>
+      <xs:attribute name="tag" type="xs:string"/>
+   </xs:complexType>
+
+   <xs:complexType name="Keybind" mixed="true">
+      <xs:complexContent>
+         <xs:extension base="Base">
+            <xs:attribute name="keybind" type="xs:string"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="Score" mixed="true">
+      <xs:complexContent>
+         <xs:extension base="Base">
+            <xs:attribute name="name" type="xs:string" use="required"/>
+            <xs:attribute name="objective" type="xs:string" use="required"/>
+            <xs:attribute name="value" type="xs:string"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="Translatable" mixed="true">
+      <xs:complexContent>
+         <xs:extension base="Base">
+            <xs:choice maxOccurs="1" minOccurs="0">
+               <xs:element name="With" type="BaseContent" maxOccurs="1" minOccurs="0"/>
+            </xs:choice>
+            <xs:attribute name="translate" type="xs:string" use="required"/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="Selector" mixed="true">
+      <xs:complexContent>
+         <xs:extension base="Base">
+            <xs:attribute name="selector" type="xs:string" use="required"/>
+            <xs:attribute name="separator" type="xs:string" default=", "/>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:simpleType name="color">
+      <xs:union memberTypes="colorHex colorId"/>
+   </xs:simpleType>
+
+   <xs:simpleType name="colorHex">
+      <xs:restriction base="xs:string">
+         <xs:pattern value="#[0-9a-fA-F]{6}"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="colorId">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="black" />
+         <xs:enumeration value="dark_blue" />
+         <xs:enumeration value="dark_green" />
+         <xs:enumeration value="dark_aqua" />
+         <xs:enumeration value="dark_red" />
+         <xs:enumeration value="dark_purple" />
+         <xs:enumeration value="gold" />
+         <xs:enumeration value="gray" />
+         <xs:enumeration value="dark_gray" />
+         <xs:enumeration value="blue" />
+         <xs:enumeration value="green" />
+         <xs:enumeration value="aqua" />
+         <xs:enumeration value="red" />
+         <xs:enumeration value="light_purple" />
+         <xs:enumeration value="yellow" />
+         <xs:enumeration value="white" />
+      </xs:restriction>
+   </xs:simpleType>
+
+   <xs:simpleType name="onclick">
+      <xs:union memberTypes="onclickUrl onclickPage onclickRun onclickSuggest onclickCopy onclickFile"/>
+   </xs:simpleType>
+
+   <xs:simpleType name="onclickUrl">
+      <xs:union>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:pattern value="url:.*"/>
+            </xs:restriction>
+         </xs:simpleType>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="url:"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:union>
+   </xs:simpleType>
+
+   <xs:simpleType name="onclickRun">
+      <xs:union>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:pattern value="run:.*"/>
+            </xs:restriction>
+         </xs:simpleType>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="run:/"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:union>
+   </xs:simpleType>
+
+   <xs:simpleType name="onclickSuggest">
+      <xs:union>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:pattern value="suggest:.*"/>
+            </xs:restriction>
+         </xs:simpleType>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="suggest:/"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:union>
+   </xs:simpleType>
+
+   <xs:simpleType name="onclickPage">
+      <xs:union>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:pattern value="page:[0-9]*"/>
+            </xs:restriction>
+         </xs:simpleType>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="page:0"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:union>
+   </xs:simpleType>
+
+   <xs:simpleType name="onclickCopy">
+      <xs:union>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:pattern value="copy:.*"/>
+            </xs:restriction>
+         </xs:simpleType>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="copy:"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:union>
+   </xs:simpleType>
+
+   <xs:simpleType name="onclickFile">
+      <xs:union>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:pattern value="file:.*"/>
+            </xs:restriction>
+         </xs:simpleType>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="file:"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:union>
+   </xs:simpleType>
+
+   <xs:simpleType name="UUID">
+      <xs:restriction base="xs:string">
+         <xs:pattern value="[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"/>
+      </xs:restriction>
+   </xs:simpleType>
+
+</xs:schema>

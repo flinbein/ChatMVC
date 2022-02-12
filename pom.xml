@@ -26,8 +26,9 @@
 
     <properties>
         <target-java-version>17</target-java-version>
-        <spigot-version>1.17.1-R0.1-SNAPSHOT</spigot-version>
-        <spigot-api-version>1.17</spigot-api-version>
+        <spigot-version>1.18.1-R0.1-SNAPSHOT</spigot-version>
+        <bungeecord-chat-version>1.18-R0.1-SNAPSHOT</bungeecord-chat-version>
+        <spigot-api-version>1.15</spigot-api-version>
         <plugin-description>Chat MVC</plugin-description>
 
 
@@ -46,6 +47,12 @@
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
             <version>${spigot-version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-chat</artifactId>
+            <version>${bungeecord-chat-version}</version>
             <scope>provided</scope>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
