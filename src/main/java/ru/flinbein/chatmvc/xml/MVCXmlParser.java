@@ -31,7 +31,11 @@ public class MVCXmlParser {
         return parseBaseComponent(element, element.getTagName());
     }
 
-    private BaseComponent parseBaseComponent(Element element, String type) {
+    private BaseComponent parseBaseComponent(Element element, String type){
+        return parseBaseComponent(element, type, true, true,null);
+    }
+
+    private BaseComponent parseBaseComponent(Element element, String type, boolean trimFirstSpace, boolean trimLastSpace, boolean[] spaceRef) {
         BaseComponent component = switch (type) {
             case "keybind" -> parseKeybind(element);
             case "text" -> parseText(element);
@@ -68,25 +72,41 @@ public class MVCXmlParser {
         }
         Element hoverElement = null;
         NodeList childNodes = element.getChildNodes();
+        if (childNodes.getLength() == 0) trimFirstSpace = false;
         for (var i=0; i<childNodes.getLength(); i++){
+            boolean currentTrimFirstSpace = true;
             Node child = childNodes.item(i);
             if (child instanceof Text text){
-                component.addExtra(text.getNodeValue().trim());
+                String textValue = text.getNodeValue().replaceAll("[\\s\\n\\t]+", " ");
+                if (textValue.equals(" ") || textValue.isEmpty()) continue;
+                if (trimFirstSpace && textValue.startsWith(" ")) textValue = textValue.substring(1);
+                if (trimLastSpace && i == childNodes.getLength()-1 && textValue.endsWith(" ")) textValue = textValue.substring(0, textValue.length()-1);
+                component.addExtra(textValue);
+                currentTrimFirstSpace = textValue.endsWith(" ");
             } else if (child instanceof Element e){
                 switch (e.getTagName()) {
                     case "hover-entity", "hover-item", "hover-text" -> {
+                        currentTrimFirstSpace = trimFirstSpace;
                         if (hoverElement != null) throw new RuntimeException("Only one hover item allowed");
                         hoverElement = e;
                     }
                     case "br" -> component.addExtra("\n");
-                    case "pre" -> component.addExtra(e.getNodeValue());
+                    case "pre" -> component.addExtra(e.getTextContent());
                     case "space" -> component.addExtra(" ");
-                    default -> component.addExtra(parseBaseComponent(e));
+                    default -> {
+                        var spaceRefOut = new boolean[]{false};
+                        component.addExtra(parseBaseComponent(e, e.getTagName(), trimFirstSpace, false, spaceRefOut));
+                        currentTrimFirstSpace = spaceRefOut[0];
+                    }
                 }
+            } else if (child instanceof Comment) {
+                continue;
             } else {
                 throw new RuntimeException("ToDo: only text & component-tags allowed in tag <"+type+">");
             }
+            trimFirstSpace = currentTrimFirstSpace;
         }
+        if (spaceRef != null) spaceRef[0] = trimFirstSpace;
         if (element.hasAttribute("endl") && element.getAttribute("endl").equals("true")) {
             component.addExtra("\n");
         }
@@ -211,7 +231,7 @@ public class MVCXmlParser {
                 } else if (child instanceof Element) {
                     var childComponent = parseBaseComponent((Element) child);
                     cmp.addWith(childComponent);
-                } else {
+                } if (!(child instanceof Comment)) {
                     throw new RuntimeException("ToDo: only text & component-tags allowed in tag <With>");
                 }
             }

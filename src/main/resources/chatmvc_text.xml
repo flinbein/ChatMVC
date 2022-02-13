@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <text xmlns:xs="http://www.w3.org/2001/XMLSchema-instance" xs:noNamespaceSchemaLocation="./chatMvcScheme.xsd">
 
-    однажды в студёную зимнюю пору<br/>
+    однажды   в   студёную
+    зимнюю пору
+    <br/>
 
     <text color="yellow">
         лошадка
         <hover-text color="aqua" text="ЛОШАДКА: ">
             животное такое.<br/>HoverEntity не работает(
         </hover-text>
-    </text>
-    <space/>примёрзла<space/> <text obfuscated="true" color="gold">сурово</text><space/>к забору
+    </text> примёрзла <text obfuscated="true" color="gold"> сурово <hover-text color="red" text="сурово"/></text> к забору<br/>
 
+
+
+    она <text color="yellow">и</text> лягалась<br/>
+    она<text color="yellow"> и</text> брыкалась<br/>
+    она <text color="yellow">и </text>лягалась<br/>
+    она<text color="yellow"> и </text>брыкалась<br/>
+    УШЛА с<text color="gold" obfuscated="true">урово</text><br/>
+
+    <pre>куча         пробелов         осталась</pre>
+    <br/>
+    <br/>
+    Всё.
 </text>
