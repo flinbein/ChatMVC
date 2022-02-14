@@ -1,0 +1,56 @@
+<#ftl encoding="utf-8">
+<?xml version="1.0" encoding="UTF-8" ?>
+<#-- @ftlvariable name="player" type="org.bukkit.entity.Player" -->
+<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../chatMVCSchema.xsd">
+    <#list 1..12 as i><br/></#list> <#-- empty lines -->
+
+    <text color="#b0fbff">
+        Hello, <text text="${player.name}" color="blue"/>!<br/>
+        This is an example of ChatMVC template<br/>
+    </text>
+    <text bold="true" color="#90ffb0">
+        ===== Your stats ===== <br/>
+    </text>
+
+    <text color="red" text="Health: " endl="true">
+        <text text="${player.health}" bold="true"/>
+        <hover-text color="yellow">
+            Max health: <text color="gold" bold="true">${player.maxHealth}</text>
+        </hover-text>
+    </text>
+
+    <text color="blue" text="Food level: " endl="true">
+        <text text="${player.foodLevel}" bold="true"/>
+    </text>
+
+    <text color="green" text="Game mode: " endl="true">
+        <text text="${player.gameMode}" bold="true"/>
+    </text>
+
+    <text color="light_purple" text="Items: " endl="true">
+        <#assign inv = player.getInventory()>
+        <#list 0..8 as slot>
+            <#assign item = inv.getItem(slot)!>
+            <#if item?has_content>
+                <text text="&#x25A0; " bold="true" onclick="run:/cmvc setHeldItemSlot ${slot}">
+                    <hover-item id="${item.type.key}" count="${item.amount}"/>
+                </text>
+            <#else>
+                <text text="&#x25A1; " bold="true" color="dark_gray" onclick="run:/cmvc setHeldItemSlot ${slot}"/>
+            </#if>
+        </#list>
+    </text>
+
+
+
+
+    <text color="yellow" text="It water: " endl="true">
+        <text color="gold"><#if player.inWater>yes<#else>no</#if></text>
+    </text>
+    <br/>
+
+    <text color="#90b0ff" onclick="run:/help ChatMVC" underlined="true">
+        <pre>/help ChatMVC</pre>
+        <hover-text color="gray">execute: /help ChatMVC</hover-text>
+    </text>
+</text>

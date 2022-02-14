@@ -3,22 +3,43 @@ package ru.flinbein.chatmvc.xml;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
 public class MVCXmlParser {
 
-    static DocumentBuilder documentBuilder;
+    private static MVCXmlParser self;
+    private final DocumentBuilder documentBuilder;
 
-    static {
-        try {
-            documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch (Throwable ignored) {}
+    public static MVCXmlParser getInstance(){
+        if (self != null) return self;
+        return self = new MVCXmlParser();
     }
 
-    public BaseComponent parse(InputStream xml) throws Exception {
+    private MVCXmlParser(){
+        try {
+            SchemaFactory schemaFactory = SchemaFactory.newDefaultInstance();
+            URL schemaUrl = MVCXmlParser.class.getClassLoader().getResource("chatMVCSchema.xsd");
+            Schema schema = schemaFactory.newSchema(schemaUrl);
+            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setSchema(schema);
+            documentBuilderFactory.setValidating(true);
+            documentBuilder = documentBuilderFactory.newDocumentBuilder();
+
+        } catch (ParserConfigurationException|SAXException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public BaseComponent parse(InputStream xml) throws IOException, SAXException {
         // Создается построитель документа
 
         // Создается дерево DOM документа из файла
@@ -90,8 +111,12 @@ public class MVCXmlParser {
                         if (hoverElement != null) throw new RuntimeException("Only one hover item allowed");
                         hoverElement = e;
                     }
+                    case "pre" -> {
+                        String content = e.getTextContent();
+                        component.addExtra(content);
+                        currentTrimFirstSpace = content.matches("[\\s\\n\\t]$");
+                    }
                     case "br" -> component.addExtra("\n");
-                    case "pre" -> component.addExtra(e.getTextContent());
                     case "space" -> component.addExtra(" ");
                     default -> {
                         var spaceRefOut = new boolean[]{false};
@@ -102,7 +127,7 @@ public class MVCXmlParser {
             } else if (child instanceof Comment) {
                 continue;
             } else {
-                throw new RuntimeException("ToDo: only text & component-tags allowed in tag <"+type+">");
+                throw new RuntimeException("only text & component-tags allowed in tag <"+type+">");
             }
             trimFirstSpace = currentTrimFirstSpace;
         }
@@ -218,7 +243,7 @@ public class MVCXmlParser {
             var node = childNodes.item(i);
             if (! (node instanceof Element childComponent)) continue;
             if (childComponent.getTagName().equals("with")) {
-                if (withElement != null) throw new RuntimeException("ToDo: Only 1 <With> allowed");
+                if (withElement != null) throw new RuntimeException("Only 1 <With> allowed");
                 withElement = childComponent;
             };
         }
@@ -232,7 +257,7 @@ public class MVCXmlParser {
                     var childComponent = parseBaseComponent((Element) child);
                     cmp.addWith(childComponent);
                 } if (!(child instanceof Comment)) {
-                    throw new RuntimeException("ToDo: only text & component-tags allowed in tag <With>");
+                    throw new RuntimeException("only text & component-tags allowed in tag <With>");
                 }
             }
         }
