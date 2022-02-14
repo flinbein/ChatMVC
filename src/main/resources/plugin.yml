@@ -1,5 +1,5 @@
 name: ChatMVC
-version: ${project.version}
+version: ${plugin-version}
 description: ${plugin-description}
 api-version: ${spigot-api-version}
 authors: [DPOH-VAR, MYXOMOPX]

@@ -7,7 +7,7 @@
     <name>ChatMVC</name>
     <artifactId>chatmvc</artifactId>
     <groupId>ru.flinbein</groupId>
-    <version>1.0</version>
+    <version>BUILD-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <developers>
@@ -30,8 +30,7 @@
         <bungeecord-chat-version>1.18-R0.1-SNAPSHOT</bungeecord-chat-version>
         <spigot-api-version>1.15</spigot-api-version>
         <plugin-description>Chat MVC</plugin-description>
-
-
+        <plugin-version>DEV-SNAPSHOT</plugin-version>
     </properties>
 
     <repositories>
