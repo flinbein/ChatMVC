@@ -12,7 +12,7 @@
         ===== Your stats ===== <br/>
     </text>
 
-    <text color="red" text="Health: " endl="true">
+    <text color="red" text="Health: " endl="true" >
         <text text="${player.health}" bold="true"/>
         <hover-text color="yellow">
             Max health: <text color="gold" bold="true">${player.maxHealth}</text>

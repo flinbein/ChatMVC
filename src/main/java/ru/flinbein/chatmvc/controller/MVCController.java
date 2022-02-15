@@ -1,48 +1,44 @@
 package ru.flinbein.chatmvc.controller;
 
-import com.google.common.collect.Maps;
-import freemarker.template.TemplateMethodModel;
-import freemarker.template.TemplateMethodModelEx;
-import freemarker.template.TemplateModelException;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.command.CommandSender;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.flinbein.chatmvc.template.TemplateParser;
 
-import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 
-public abstract class MVCController implements BindableController {
+// only for chat.
+public class MVCController {
 
-    private final String id;
-    private final JavaPlugin plugin;
-    private final TemplateParser parser;
-    private final BindMethod bindMethod = new BindMethod();
-    public Boolean global = false;
-    public final HashMap<String, Object> variables = new HashMap<>();
+    public String commandPrefix;
+    protected Plugin plugin;
+    protected CommandSender commandSender;
+    protected TemplateParser parser;
+    private boolean registered = false;
     private final HashMap<String, Binding> bindings = new HashMap<>();
 
+    public MVCController() {}
 
-    public MVCController(String id, JavaPlugin plugin) {
-        this.id = id;
+    public void register(CommandSender sender, Plugin plugin, String commandPrefixWithId) {
+        if (registered) {
+            throw new RuntimeException("Controller already registered: "+commandPrefixWithId);
+        }
+        registered = true;
+        bindings.clear();
         this.plugin = plugin;
-        parser = new TemplateParser(plugin);
+        this.commandSender = sender;
+        this.commandPrefix = commandPrefixWithId;
+        this.parser = TemplateParser.getForPlugin(plugin);
     }
 
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public InputStream parsePattern(String fileName)  {
-        Map<String, Object> model = new HashMap<>(variables);
-        model.put("bind", bindMethod);
+    public BaseComponent parsePattern(String fileName)  {
         try {
-            return parser.parseFile(fileName, model);
+            return parser.parseTemplateToComponent(fileName, this);
         } catch (Exception e) {
             // ToDo error?
         }
@@ -54,42 +50,57 @@ public abstract class MVCController implements BindableController {
         return Integer.toString(freeIntActionId++, 32);
     }
 
-    private String getControllerCommandPrefix() {
-        return (global ? "g:" : "p:") + getId();
+    // /cmvc frameId:actionId
+
+    // clear bindings after render
+    public String bind(String methodName, Object... params) {
+        Binding binding = new Binding(methodName, params);
+        var actionId = getNewActionId();
+        bindings.put(actionId, binding);
+        return commandPrefix + ":" + actionId;
     }
 
 
-    @Override
-    public void onCommand(String actionId, String text) {
+    public boolean onCommand(String actionId, String[] texts) {
         var binding = bindings.get(actionId);
         if (binding == null) {
             // ToDo error?
-            return;
+            return false;
         }
         String methodName = binding.methodName;
         try {
-            Method method = this.getClass().getMethod(methodName, List.class, String.class);
-            method.invoke(this, binding.params, text);
+            Method method = this.getClass().getMethod(methodName, Object[].class, String[].class);
+            Object result = method.invoke(this, binding.params, texts);
+            return result == null || !result.equals(false);
         } catch (Exception e) {
             // ToDo error?
-            return;
+            return false;
         }
     }
 
-    record Binding(String methodName, List params) {}
-
-    class BindMethod implements TemplateMethodModelEx {
-
-        @Override
-        public Object exec(List list) throws TemplateModelException {
-            if (list.isEmpty() || !(list.get(0) instanceof String methodName)) {
-                throw new RuntimeException("First argument of controller bind function must be methodName");
-            }
-            var params = list.subList(1, list.size());
-            Binding binding = new Binding(methodName, params);
-            bindings.put(id, binding);
-            return getControllerCommandPrefix() + ":" + getNewActionId();
+    public List<String> onTabComplete(String actionId, String[] texts){
+        var binding = bindings.get(actionId);
+        if (binding == null) {
+            // ToDo error?
+            return null;
         }
-
+        String methodName = binding.methodName+"_Tab";
+        try {
+            Method method = this.getClass().getMethod(methodName, Object[].class, String[].class);
+            Object result = method.invoke(this, binding.params, texts);
+            if (result instanceof List list) return list;
+            return null;
+        } catch (Exception e) {
+            // ToDo error?
+            return null;
+        }
     }
+
+    public void render(String patternFileName) {
+        bindings.clear();
+        BaseComponent baseComponent = parsePattern(patternFileName);
+        commandSender.spigot().sendMessage(baseComponent);
+    }
+
+    record Binding(String methodName, Object[] params) {}
 }

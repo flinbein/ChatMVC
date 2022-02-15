@@ -1,13 +1,12 @@
 package ru.flinbein.chatmvc.template;
 
 import freemarker.cache.TemplateLoader;
-import org.bukkit.Bukkit;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.io.*;
 import java.net.URL;
 
-public record PluginResourcesTemplateLoader(JavaPlugin plugin) implements TemplateLoader {
+public record PluginResourcesTemplateLoader(Plugin plugin) implements TemplateLoader {
 
     /**
      * @param templateName template name

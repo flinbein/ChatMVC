@@ -5,7 +5,8 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.md_5.bungee.api.chat.BaseComponent;
-import org.bukkit.plugin.java.JavaPlugin;
+
+import org.bukkit.plugin.Plugin;
 import org.xml.sax.SAXException;
 import ru.flinbein.chatmvc.xml.MVCXmlParser;
 
@@ -16,18 +17,18 @@ import java.util.Map;
 public class TemplateParser {
 
     private static final MVCXmlParser xmlParser = MVCXmlParser.getInstance();
-    private static final Map<JavaPlugin, TemplateParser> parserMap = new HashMap<>();
+    private static final Map<Plugin, TemplateParser> parserMap = new HashMap<>();
 
     private final Configuration cfg = new Configuration(Configuration.VERSION_2_3_29);
 
-    public static TemplateParser getForPlugin(JavaPlugin plugin){
+    public static TemplateParser getForPlugin(Plugin plugin){
         if (parserMap.containsKey(plugin)) return parserMap.get(plugin);
         var instance = new TemplateParser(plugin);
         parserMap.put(plugin, instance);
         return instance;
     }
 
-    private TemplateParser(JavaPlugin plugin) {
+    private TemplateParser(Plugin plugin) {
         TemplateLoader loader = new PluginResourcesTemplateLoader(plugin);
         cfg.setTemplateLoader(loader);
     }

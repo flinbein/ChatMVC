@@ -3,6 +3,7 @@ package ru.flinbein.chatmvc;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import ru.flinbein.chatmvc.template.TemplateParser;
@@ -16,6 +17,8 @@ public class ChatMVCPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         super.onEnable();
+        PluginCommand mvvm = this.getCommand("mvvm");
+        // create some MVVM Factory and pass there mvvm
     }
 
     @Override
