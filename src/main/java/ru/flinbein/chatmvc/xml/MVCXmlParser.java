@@ -4,9 +4,11 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.*;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.IOException;
 import java.io.InputStream;
 
 public class MVCXmlParser {
@@ -19,12 +21,13 @@ public class MVCXmlParser {
         } catch (Throwable ignored) {}
     }
 
-    static void parse(InputStream xml) throws Exception {
+    public static BaseComponent parse(InputStream xml) throws IOException, SAXException {
         // Создается построитель документа
 
         // Создается дерево DOM документа из файла
         Document document = documentBuilder.parse("BookCatalog.xml");
         Element rootComponent = document.getDocumentElement();
+        return null;
     }
 
     private BaseComponent parseBaseComponent(Element element) {

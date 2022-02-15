@@ -11,7 +11,13 @@
 
     </Text>
 
-    <Text endl="true">
+    <#list listtt as item>
+        <Text endl="true" onclick="run:/< ${bind("remove", [item])}">
+<#-- /< 352456346346:8800553535 -->
+        </Text>
+        <Text endl="true" onclick="suggest:/< ${bind("remove", [item])} item = 5">
+<#-- /< 352456346346:2352352353 item = 10 -->
+        </Text>
 
-    </Text>
+    </#list>
 </Text>

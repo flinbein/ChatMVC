@@ -16,7 +16,7 @@ public class TemplateParser {
     }
 
 
-    InputStream parseFile(String fileName, Object model) throws Exception {
+    public InputStream parseFile(String fileName, Object model) throws Exception {
         Template temp = cfg.getTemplate(fileName);
         PipedOutputStream outputStream = new PipedOutputStream();
         OutputStreamWriter writer = new OutputStreamWriter(outputStream);
