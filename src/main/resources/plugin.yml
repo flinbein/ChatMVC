@@ -1,5 +1,5 @@
 name: ChatMVC
-version: ${project.version}
+version: ${plugin-version}
 description: ${plugin-description}
 api-version: ${spigot-api-version}
 authors: [DPOH-VAR, MYXOMOPX]
@@ -10,8 +10,7 @@ libraries:
   - org.freemarker:freemarker:2.3.31
 
 commands:
-  ^:
+  cmvc:
     description: Chat MVC
-    aliases: ['/^']
+    aliases: ['^']
     usage: /^
-    permission: *

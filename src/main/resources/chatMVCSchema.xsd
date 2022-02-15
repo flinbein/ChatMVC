@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-   <xs:element name="Text" type="Text"/>
-   <xs:element name="Keybind" type="Keybind"/>
-   <xs:element name="Score" type="Score"/>
-   <xs:element name="Translatable" type="Translatable"/>
-   <xs:element name="Selector" type="Selector"/>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1">
+   <xs:element name="text" type="Text"/>
+   <xs:element name="keybind" type="Keybind"/>
+   <xs:element name="score" type="Score"/>
+   <xs:element name="translatable" type="Translatable"/>
+   <xs:element name="selector" type="Selector"/>
 
    <xs:complexType name="Base" mixed="true">
       <xs:complexContent>
          <xs:extension base="BaseContent">
             <xs:choice maxOccurs="1" minOccurs="0">
-               <xs:element name="HoverText" type="HoverText" maxOccurs="1" minOccurs="0"/>
-               <xs:element name="HoverItem" type="HoverItem" maxOccurs="1" minOccurs="0"/>
-               <xs:element name="HoverEntity" type="HoverEntity" maxOccurs="1" minOccurs="0"/>
+               <xs:element name="hover-text" type="HoverText" maxOccurs="1" minOccurs="0"/>
+               <xs:element name="hover-item" type="HoverItem" maxOccurs="1" minOccurs="0"/>
+               <xs:element name="hover-entity" type="HoverEntity" maxOccurs="1" minOccurs="0"/>
             </xs:choice>
             <xs:attribute name="endl" type="xs:boolean" default="false"/>
             <xs:attribute name="bold" type="xs:boolean" default="false"/>
@@ -28,13 +28,29 @@
       </xs:complexContent>
    </xs:complexType>
 
+   <xs:complexType name="Empty"/>
+
+
    <xs:complexType name="BaseContent" mixed="true">
+         <xs:choice maxOccurs="unbounded" minOccurs="0">
+            <xs:element name="text" type="Text" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="keybind" type="Keybind" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="score" type="Score" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="translatable" type="Translatable" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="selector" type="Selector" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="br" type="Empty" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="space" type="Empty" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="pre" type="xs:string" maxOccurs="unbounded" minOccurs="0"/>
+         </xs:choice>
+   </xs:complexType>
+
+   <xs:complexType name="With" mixed="false">
       <xs:choice maxOccurs="unbounded" minOccurs="0">
-         <xs:element name="Text" type="Text" maxOccurs="unbounded" minOccurs="0"/>
-         <xs:element name="Keybind" type="Keybind" maxOccurs="unbounded" minOccurs="0"/>
-         <xs:element name="Score" type="Score" maxOccurs="unbounded" minOccurs="0"/>
-         <xs:element name="Translatable" type="Translatable" maxOccurs="unbounded" minOccurs="0"/>
-         <xs:element name="Selector" type="Selector" maxOccurs="unbounded" minOccurs="0"/>
+         <xs:element name="text" type="Text" maxOccurs="unbounded" minOccurs="0"/>
+         <xs:element name="keybind" type="Keybind" maxOccurs="unbounded" minOccurs="0"/>
+         <xs:element name="score" type="Score" maxOccurs="unbounded" minOccurs="0"/>
+         <xs:element name="translatable" type="Translatable" maxOccurs="unbounded" minOccurs="0"/>
+         <xs:element name="selector" type="Selector" maxOccurs="unbounded" minOccurs="0"/>
       </xs:choice>
    </xs:complexType>
 
@@ -72,7 +88,7 @@
 
    <xs:complexType name="HoverItem">
       <xs:attribute name="id" type="xs:string" use="required"/>
-      <xs:attribute name="count" type="xs:string"/>
+      <xs:attribute name="count" type="xs:integer"/>
       <xs:attribute name="tag" type="xs:string"/>
    </xs:complexType>
 
@@ -98,7 +114,7 @@
       <xs:complexContent>
          <xs:extension base="Base">
             <xs:choice maxOccurs="1" minOccurs="0">
-               <xs:element name="With" type="BaseContent" maxOccurs="1" minOccurs="0"/>
+               <xs:element name="with" type="With" maxOccurs="1" minOccurs="0"/>
             </xs:choice>
             <xs:attribute name="translate" type="xs:string" use="required"/>
          </xs:extension>
@@ -142,6 +158,7 @@
          <xs:enumeration value="light_purple" />
          <xs:enumeration value="yellow" />
          <xs:enumeration value="white" />
+         <xs:enumeration value="reset" />
       </xs:restriction>
    </xs:simpleType>
 

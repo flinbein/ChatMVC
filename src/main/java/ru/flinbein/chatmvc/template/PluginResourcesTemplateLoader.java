@@ -1,25 +1,21 @@
 package ru.flinbein.chatmvc.template;
 
 import freemarker.cache.TemplateLoader;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.URL;
 
-public class PluginResourcesTemplateLoader implements TemplateLoader {
+public record PluginResourcesTemplateLoader(JavaPlugin plugin) implements TemplateLoader {
 
-    private JavaPlugin plugin;
-
-    public PluginResourcesTemplateLoader(JavaPlugin plugin) {
-        this.plugin = plugin;
-    }
-
+    /**
+     * @param templateName template name
+     * @return null if template not found. Return non-null if template exists
+     */
     @Override
-    public Object findTemplateSource(String s) {
-        return plugin.getClass().getClassLoader().getResourceAsStream(s);
+    public URL findTemplateSource(String templateName) {
+        return plugin.getClass().getClassLoader().getResource(templateName);
     }
 
     @Override
@@ -28,14 +24,11 @@ public class PluginResourcesTemplateLoader implements TemplateLoader {
     }
 
     @Override
-    public Reader getReader(Object o, String s) throws IOException {
-        InputStream stream = (InputStream) o;
-        return new InputStreamReader(stream);
+    public Reader getReader(Object o, String charset) throws IOException {
+        if (!(o instanceof URL url)) return null;
+        return new InputStreamReader(url.openStream(), charset);
     }
 
     @Override
-    public void closeTemplateSource(Object o) throws IOException {
-        InputStream stream = (InputStream) o;
-        stream.close();
-    }
+    public void closeTemplateSource(Object o) {} // not needed; Reader already closed
 }
