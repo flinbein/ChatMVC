@@ -1,0 +1,81 @@
+<#ftl encoding="utf-8">
+<?xml version="1.0" encoding="UTF-8" ?>
+<#include "item/item_shortView.ftlx">
+<#include "item/item_descriptionView.ftlx">
+<#-- @ftlvariable name="player" type="org.bukkit.entity.Player" -->
+<#-- @ftlvariable name="invPage" type="int" -->
+<#-- @ftlvariable name="mode" type="String" -->
+<#-- @ftlvariable name="selectedItem" type="org.bukkit.inventory.ItemStack" -->
+<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../chatMVCSchema.xsd">
+    <#list 1..12 as i><br/></#list> <#-- empty lines -->
+
+
+    <text color="#b0fbff">
+        Hello, <text text="${player.name}" color="blue"/>!<br/>
+        This is an example of
+        <text color="yellow" text="Controllers">
+            <hover-text>
+                Controllers allows you to easily handle clicks and tab completes
+            </hover-text>
+        </text>
+        <space/>
+        of ChatMVC template<br/>
+    </text>
+
+    <#if mode == "inventoryView">
+        <text bold="true" color="#90ffb0">
+            ======== Your Inventory ========
+            <br/>
+        </text>
+        <#assign inv = player.getInventory()>
+        <#list invPage*9..(invPage*9)+8 as slot>
+            <#assign item = inv.getItem(slot)!>
+            <#assign itemOnClick = item?has_content?then("run:"+bind("selectItem",slot),"nothing")>
+            <text>[${slot}]: </text>
+            <@itemShort item=item onClick=itemOnClick />
+            <br/>
+        </#list>
+
+        <text>=====</text>
+        <#assign leftArrowActive = (invPage > 0)>
+        <text
+            color="${leftArrowActive?then("green", "dark_gray")}"
+            <#if leftArrowActive>
+                onclick="run:${bind("prevPage",invPage)}"
+            </#if>
+        >
+            [&#x2190;]
+            <hover-text>prev page</hover-text>
+        </text>
+        <text>=== Page ${invPage+1} / 4 ===</text>
+        <#assign rightArrowActive = (invPage < 3)>
+        <text
+            color="${rightArrowActive?then("green", "dark_gray")}"
+            <#if rightArrowActive>
+                onclick="run:${bind("nextPage",invPage)}"
+            </#if>
+        >
+            [&#x2192;]
+            <hover-text>next page</hover-text>
+        </text>
+        <text>=====</text>
+    </#if>
+
+    <#if mode == "itemView">
+        <text bold="true" color="#90ffb0">
+            ======== Item ${selectedItem.type.name()} ========
+            <br/>
+        </text>
+        <@itemDescriptionView item=selectedItem/>
+        <br/>
+        <text bold="true" color="#90ffb0">
+            ==============<space/>
+            <text onclick="run:${bind("backToInventory")}" color="green">
+                [&#x21A9;]
+                <hover-text text="Back to inventory"/>
+            </text>
+            <space/>==============
+        </text>
+    </#if>
+
+</text>

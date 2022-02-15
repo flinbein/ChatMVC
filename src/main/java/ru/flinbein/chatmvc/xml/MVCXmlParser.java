@@ -149,9 +149,10 @@ public class MVCXmlParser {
                 case "run" -> ClickEvent.Action.RUN_COMMAND;
                 case "suggest" -> ClickEvent.Action.SUGGEST_COMMAND;
                 case "url" -> ClickEvent.Action.OPEN_URL;
+                case "nothing" -> null;
                 default -> throw new RuntimeException("Wrong onclick type: "+commandType);
             };
-            component.setClickEvent(new ClickEvent(action, commandValue));
+            if (action != null) component.setClickEvent(new ClickEvent(action, commandValue));
         }
 
         if (hoverElement != null) {

@@ -1,0 +1,34 @@
+<#ftl encoding="utf-8">
+
+<#macro itemDescriptionView item>
+    <text>
+        <text bold="true" text="Name: "/>
+        <text color="yellow" text="${item.type.name()}"/>
+        <br/>
+        <text bold="true" text="Type key: "/>
+        <text color="yellow" text="${item.type.key}"/>
+        <br/>
+        <text bold="true" text="Amount: "/>
+        <text color="yellow" text="${item.amount}"/>
+        <br/>
+        <text bold="true" text="Durability: "/>
+        <text color="yellow" text="${item.durability}"/>
+        <br/>
+
+        <#if item.hasItemMeta()>
+            <br/>
+            <#assign meta = item.getItemMeta()>
+            <text bold="true" text="Display name: "/>
+            <text color="yellow" text="${meta.displayName}"/>
+            <#if meta.hasLore()>
+                <br/>
+                <text>Lore: </text>
+                <#list meta.getLore() as loreLine>
+                    <br/>
+                    <text color="blue">${loreLine}</text>
+                </#list>
+            </#if>
+        </#if>
+    </text>
+</#macro>
+

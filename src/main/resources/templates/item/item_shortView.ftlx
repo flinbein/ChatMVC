@@ -1,0 +1,16 @@
+<#ftl encoding="utf-8">
+
+<#macro itemShort item onClick>
+    <#if item?has_content>
+        <text text="${item.type.name()}" bold="true" onclick="${onClick}">
+            <hover-text>
+                Click to view details
+                <hover-item id="${item.type.key}" count="${item.amount}"/>
+            </hover-text>
+        </text>
+    <#else>
+        <text text="&#x25A1; " bold="true" color="dark_gray">
+            <hover-text text="Empty"/>
+        </text>
+    </#if>
+</#macro>

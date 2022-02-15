@@ -14,3 +14,11 @@ commands:
     description: Chat MVC
     aliases: ['^']
     usage: /^
+  cmvcex:
+    description: Show example of CMVCX
+    aliases: ['^ex']
+    usage: /^ex
+  cmvcx:
+    description: Chat MVC (Contrallable)
+    aliases: [ '^x' ]
+    usage: /^x

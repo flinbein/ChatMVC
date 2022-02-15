@@ -163,7 +163,7 @@
    </xs:simpleType>
 
    <xs:simpleType name="onclick">
-      <xs:union memberTypes="onclickUrl onclickPage onclickRun onclickSuggest onclickCopy onclickFile"/>
+      <xs:union memberTypes="onclickUrl onclickPage onclickRun onclickSuggest onclickCopy onclickFile onclickNothing"/>
    </xs:simpleType>
 
    <xs:simpleType name="onclickUrl">
@@ -251,6 +251,21 @@
          <xs:simpleType>
             <xs:restriction base="xs:string">
                <xs:enumeration value="file:"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:union>
+   </xs:simpleType>
+
+   <xs:simpleType name="onclickNothing">
+      <xs:union>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:pattern value="nothing"/>
+            </xs:restriction>
+         </xs:simpleType>
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="nothing"/>
             </xs:restriction>
          </xs:simpleType>
       </xs:union>

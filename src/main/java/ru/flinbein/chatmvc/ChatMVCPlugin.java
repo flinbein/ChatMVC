@@ -6,6 +6,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.flinbein.chatmvc.example.ExampleInventoryController;
+import ru.flinbein.chatmvc.handler.CommandHandler;
 import ru.flinbein.chatmvc.template.TemplateParser;
 
 import java.util.HashMap;
@@ -13,16 +15,27 @@ import java.util.HashMap;
 public class ChatMVCPlugin extends JavaPlugin {
 
     TemplateParser tplParser = TemplateParser.getForPlugin(this);
+    CommandHandler commandHandler;
 
     @Override
     public void onEnable() {
         super.onEnable();
-        PluginCommand mvvm = this.getCommand("mvvm");
+        PluginCommand command = this.getCommand("cmvcx");
+        commandHandler = new CommandHandler(command);
+
         // create some MVVM Factory and pass there mvvm
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        if (command.getName().equals("cmvcx")) return false;
+        if (command.getName().equals("cmvcex")) {
+            var controller = new ExampleInventoryController();
+            commandHandler.registerController(sender, controller);
+            controller.render("templates/controller_example.ftlx");
+            return true;
+        }
 
         if (args.length == 2 && args[0].equals("setHeldItemSlot") && sender instanceof Player player) {
             player.getInventory().setHeldItemSlot(Integer.parseInt(args[1]));

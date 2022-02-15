@@ -4,6 +4,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+import ru.flinbein.chatmvc.ChatMVCPlugin;
 import ru.flinbein.chatmvc.template.TemplateParser;
 
 import java.lang.reflect.Method;
@@ -41,8 +42,8 @@ public class MVCController {
             return parser.parseTemplateToComponent(fileName, this);
         } catch (Exception e) {
             // ToDo error?
+            return null;
         }
-        return null;
     }
 
     private int freeIntActionId = 1;
@@ -50,14 +51,12 @@ public class MVCController {
         return Integer.toString(freeIntActionId++, 32);
     }
 
-    // /cmvc frameId:actionId
 
-    // clear bindings after render
     public String bind(String methodName, Object... params) {
         Binding binding = new Binding(methodName, params);
         var actionId = getNewActionId();
         bindings.put(actionId, binding);
-        return commandPrefix + ":" + actionId;
+        return "/" + commandPrefix + ":" + actionId;
     }
 
 
