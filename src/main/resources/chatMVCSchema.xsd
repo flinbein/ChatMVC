@@ -163,7 +163,7 @@
    </xs:simpleType>
 
    <xs:simpleType name="onclick">
-      <xs:union memberTypes="onclickUrl onclickPage onclickRun onclickSuggest onclickCopy onclickFile onclickNothing"/>
+      <xs:union memberTypes="onclickUrl onclickPage onclickRun onclickSuggest onclickCopy onclickFile onclickEmpty"/>
    </xs:simpleType>
 
    <xs:simpleType name="onclickUrl">
@@ -256,19 +256,10 @@
       </xs:union>
    </xs:simpleType>
 
-   <xs:simpleType name="onclickNothing">
-      <xs:union>
-         <xs:simpleType>
-            <xs:restriction base="xs:string">
-               <xs:pattern value="nothing"/>
-            </xs:restriction>
-         </xs:simpleType>
-         <xs:simpleType>
-            <xs:restriction base="xs:string">
-               <xs:enumeration value="nothing"/>
-            </xs:restriction>
-         </xs:simpleType>
-      </xs:union>
+   <xs:simpleType name="onclickEmpty">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value=""/>
+      </xs:restriction>
    </xs:simpleType>
 
    <xs:simpleType name="UUID">

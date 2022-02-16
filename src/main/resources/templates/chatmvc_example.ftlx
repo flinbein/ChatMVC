@@ -1,7 +1,7 @@
 <#ftl encoding="utf-8">
 <?xml version="1.0" encoding="UTF-8" ?>
 <#-- @ftlvariable name="player" type="org.bukkit.entity.Player" -->
-<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../chatMVCSchema.xsd">
+<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/flinbein/ChatMVC/master/src/main/resources/chatMVCSchema.xsd">
     <#list 1..12 as i><br/></#list> <#-- empty lines -->
 
     <text color="#b0fbff">
@@ -40,9 +40,6 @@
             </#if>
         </#list>
     </text>
-
-
-
 
     <text color="yellow" text="It water: " endl="true">
         <text color="gold"><#if player.inWater>yes<#else>no</#if></text>

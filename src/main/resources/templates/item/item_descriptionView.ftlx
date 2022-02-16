@@ -1,8 +1,10 @@
 <#ftl encoding="utf-8">
 
 <#macro itemDescriptionView item>
-    <text>
+    <#-- @ftlvariable name="item" type="org.bukkit.inventory.ItemStack" -->
+    <text <#if false>xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/flinbein/ChatMVC/master/src/main/resources/chatMVCSchema.xsd" </#if>>
         <text bold="true" text="Name: "/>
+        <translatable translate="blo${item.type.key}"/>
         <text color="yellow" text="${item.type.name()}"/>
         <br/>
         <text bold="true" text="Type key: "/>
@@ -19,7 +21,7 @@
             <br/>
             <#assign meta = item.getItemMeta()>
             <text bold="true" text="Display name: "/>
-            <text color="yellow" text="${meta.displayName}"/>
+            <text color="yellow" text="${meta.displayName()}"/>
             <#if meta.hasLore()>
                 <br/>
                 <text>Lore: </text>

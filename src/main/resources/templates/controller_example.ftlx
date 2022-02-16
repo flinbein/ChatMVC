@@ -2,13 +2,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <#include "item/item_shortView.ftlx">
 <#include "item/item_descriptionView.ftlx">
-<#-- @ftlvariable name="player" type="org.bukkit.entity.Player" -->
-<#-- @ftlvariable name="invPage" type="int" -->
-<#-- @ftlvariable name="mode" type="String" -->
-<#-- @ftlvariable name="selectedItem" type="org.bukkit.inventory.ItemStack" -->
-<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../chatMVCSchema.xsd">
+<#-- @ftlvariable name="" type="ru.flinbein.chatmvc.example.ExampleInventoryController" -->
+<text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/flinbein/ChatMVC/master/src/main/resources/chatMVCSchema.xsd">
     <#list 1..12 as i><br/></#list> <#-- empty lines -->
-
 
     <text color="#b0fbff">
         Hello, <text text="${player.name}" color="blue"/>!<br/>
@@ -30,7 +26,7 @@
         <#assign inv = player.getInventory()>
         <#list invPage*9..(invPage*9)+8 as slot>
             <#assign item = inv.getItem(slot)!>
-            <#assign itemOnClick = item?has_content?then("run:"+bind("selectItem",slot),"nothing")>
+            <#assign itemOnClick = item?has_content?then("run:"+selectItem(slot),"")>
             <text>[${slot}]: </text>
             <@itemShort item=item onClick=itemOnClick />
             <br/>
@@ -41,7 +37,7 @@
         <text
             color="${leftArrowActive?then("green", "dark_gray")}"
             <#if leftArrowActive>
-                onclick="run:${bind("prevPage",invPage)}"
+                onclick="run:${prevPage(invPage)}"
             </#if>
         >
             [&#x2190;]
@@ -52,7 +48,7 @@
         <text
             color="${rightArrowActive?then("green", "dark_gray")}"
             <#if rightArrowActive>
-                onclick="run:${bind("nextPage",invPage)}"
+                onclick="run:${nextPage(invPage)}"
             </#if>
         >
             [&#x2192;]
@@ -70,7 +66,7 @@
         <br/>
         <text bold="true" color="#90ffb0">
             ==============<space/>
-            <text onclick="run:${bind("backToInventory")}" color="green">
+            <text onclick="run:${backToInventory()}" color="green">
                 [&#x21A9;]
                 <hover-text text="Back to inventory"/>
             </text>

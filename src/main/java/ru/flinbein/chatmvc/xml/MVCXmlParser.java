@@ -31,7 +31,7 @@ public class MVCXmlParser {
             Schema schema = schemaFactory.newSchema(schemaUrl);
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setSchema(schema);
-            documentBuilderFactory.setValidating(true);
+            documentBuilderFactory.setNamespaceAware(true);
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
 
         } catch (ParserConfigurationException|SAXException ex) {

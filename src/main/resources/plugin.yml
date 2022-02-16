@@ -8,6 +8,7 @@ main: ru.flinbein.chatmvc.ChatMVCPlugin
 
 libraries:
   - org.freemarker:freemarker:2.3.31
+  - net.bytebuddy:byte-buddy:LATEST
 
 commands:
   cmvc:
