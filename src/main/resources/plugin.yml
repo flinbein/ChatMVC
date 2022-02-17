@@ -9,17 +9,3 @@ main: ru.flinbein.chatmvc.ChatMVCPlugin
 libraries:
   - org.freemarker:freemarker:2.3.31
   - net.bytebuddy:byte-buddy:LATEST
-
-commands:
-  cmvc:
-    description: Chat MVC
-    aliases: ['^']
-    usage: /^
-  cmvcex:
-    description: Show example of CMVCX
-    aliases: ['^ex']
-    usage: /^ex
-  cmvcx:
-    description: Chat MVC (Contrallable)
-    aliases: [ '^x' ]
-    usage: This commands used from chat requests only
