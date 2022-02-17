@@ -31,8 +31,7 @@ public class ChatMVCPlugin extends JavaPlugin {
 
         if (command.getName().equals("cmvcx")) return false;
         if (command.getName().equals("cmvcex")) {
-            var controller = new ExampleInventoryController();
-            commandHandler.registerController(sender, controller);
+            var controller = commandHandler.registerController(sender, new ExampleInventoryController());
             controller.render("templates/controller_example.ftlx");
             return true;
         }

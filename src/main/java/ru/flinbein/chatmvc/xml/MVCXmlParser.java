@@ -8,6 +8,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import java.io.IOException;
@@ -25,17 +26,18 @@ public class MVCXmlParser {
     }
 
     private MVCXmlParser(){
-        try {
-            SchemaFactory schemaFactory = SchemaFactory.newDefaultInstance();
-            URL schemaUrl = MVCXmlParser.class.getClassLoader().getResource("chatMVCSchema.xsd");
-            Schema schema = schemaFactory.newSchema(schemaUrl);
+        SchemaFactory schemaFactory = SchemaFactory.newDefaultInstance();
+        URL schemaUrl = MVCXmlParser.class.getClassLoader().getResource("chatMVCSchema.xsd");
+        if (schemaUrl == null) throw new RuntimeException("can not initialize MVCXmlParser: no schema file");
+        try (var schemaStream = schemaUrl.openStream()) {
+            var schemaSource = new StreamSource(schemaStream);
+            Schema schema = schemaFactory.newSchema(schemaSource);
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setSchema(schema);
             documentBuilderFactory.setNamespaceAware(true);
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
-
-        } catch (ParserConfigurationException|SAXException ex) {
-            throw new RuntimeException(ex);
+        } catch (ParserConfigurationException|SAXException|IOException ex) {
+            throw new RuntimeException("can not initialize MVCXmlParser", ex);
         }
     }
 

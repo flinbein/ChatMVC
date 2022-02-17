@@ -15,21 +15,18 @@ import java.util.List;
 public class CommandHandler implements TabExecutor {
 
     private int maxControllersPerSender = 5;
-    private final Plugin plugin;
     private final String commandPrefix;
     // Player = [controllerId = MVCController]
     private final HashMap<CommandSender, LinkedHashMap<String, MVCController>> senderControllerMap = new HashMap<>();
 
     public CommandHandler(PluginCommand command) {
-        this.plugin = command.getPlugin();
         command.setExecutor(this);
         command.setTabCompleter(this);
         commandPrefix = command.getName();
     }
 
     // commandPrefix without slash
-    public CommandHandler(Plugin plugin, String commandPrefix) {
-        this.plugin = plugin;
+    public CommandHandler(String commandPrefix) {
         this.commandPrefix = commandPrefix;
     }
 
@@ -38,14 +35,12 @@ public class CommandHandler implements TabExecutor {
         this.maxControllersPerSender = maxControllersPerSender;
     }
 
-    public Plugin getPlugin() { return plugin; }
-
     private int freeIntControllerId = 1;
     private String getNewControllerId() {
         return Integer.toString(freeIntControllerId++, 32);
     }
 
-    public void registerController(CommandSender sender, MVCController controller) {
+    public <T extends MVCController> T registerController(CommandSender sender, T controller, ClassLoader classLoader) {
         var controllerMap = senderControllerMap.getOrDefault(sender, new LinkedHashMap<>());
         senderControllerMap.put(sender, controllerMap);
         if (controllerMap.size() > maxControllersPerSender) {
@@ -54,8 +49,21 @@ public class CommandHandler implements TabExecutor {
             // Controller on destroy?
         }
         var controllerId = getNewControllerId();
-        controller.register(sender, plugin, commandPrefix + " " + controllerId);
+        controller.register(sender, classLoader, commandPrefix + " " + controllerId);
         controllerMap.put(controllerId, controller);
+        return controller;
+    }
+
+    public <T extends MVCController> T registerController(CommandSender sender, T controller) {
+        return registerController(sender, controller, controller.getClass().getClassLoader());
+    }
+
+    public <T extends MVCController> T registerController(CommandSender sender, T controller, Object plugin) {
+        return registerController(sender, controller, plugin.getClass().getClassLoader());
+    }
+
+    public <T extends MVCController> T registerController(CommandSender sender, T controller, Class<?> clazz) {
+        return registerController(sender, controller, clazz.getClassLoader());
     }
 
     private MVCController getControllerForSender(CommandSender commandSender, String arg1) {

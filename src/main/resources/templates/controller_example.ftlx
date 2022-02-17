@@ -43,13 +43,18 @@
             [&#x2190;]
             <hover-text>prev page</hover-text>
         </text>
-        <text>=== Page ${invPage+1} / 4 ===</text>
+        =<text onclick="suggest:${render(args[0])} ">=</text>= Page
+        <text onclick="suggest:${setPage(args[1])} setPage ${invPage+1}" color="yellow">
+            ${invPage+1} / ${player.inventory.storageContents?size / 9}
+            <hover-text text="click to set custom page" color="gold"/>
+        </text>
+        ===
         <#assign rightArrowActive = (invPage < 3)>
         <text
-            color="${rightArrowActive?then("green", "dark_gray")}"
-            <#if rightArrowActive>
-                onclick="run:${nextPage(invPage)}"
-            </#if>
+                color="${rightArrowActive?then("green", "dark_gray")}"
+                <#if rightArrowActive>
+                    onclick="run:${nextPage(invPage)}"
+                </#if>
         >
             [&#x2192;]
             <hover-text>next page</hover-text>

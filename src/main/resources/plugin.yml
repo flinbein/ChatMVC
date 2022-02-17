@@ -22,4 +22,4 @@ commands:
   cmvcx:
     description: Chat MVC (Contrallable)
     aliases: [ '^x' ]
-    usage: /^x
+    usage: This commands used from chat requests only

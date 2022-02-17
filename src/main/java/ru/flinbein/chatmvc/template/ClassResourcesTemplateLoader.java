@@ -1,12 +1,19 @@
 package ru.flinbein.chatmvc.template;
 
-import freemarker.cache.TemplateLoader;
-import org.bukkit.plugin.Plugin;
-
 import java.io.*;
 import java.net.URL;
 
-public record PluginResourcesTemplateLoader(Plugin plugin) implements TemplateLoader {
+public class ClassResourcesTemplateLoader extends BukkitResourcesTemplateLoader {
+
+    private final ClassLoader classLoader;
+
+    public ClassResourcesTemplateLoader(ClassLoader classLoader){
+        this.classLoader = classLoader;
+    }
+
+    public ClassLoader getClassLoader() {
+        return classLoader;
+    }
 
     /**
      * @param templateName template name
@@ -14,7 +21,9 @@ public record PluginResourcesTemplateLoader(Plugin plugin) implements TemplateLo
      */
     @Override
     public URL findTemplateSource(String templateName) {
-        return plugin.getClass().getClassLoader().getResource(templateName);
+        URL source = super.findTemplateSource(templateName);
+        if (source != null) return source;
+        return getClassLoader().getResource(templateName);
     }
 
     @Override

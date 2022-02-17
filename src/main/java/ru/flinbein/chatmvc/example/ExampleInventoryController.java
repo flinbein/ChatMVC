@@ -3,8 +3,14 @@ package ru.flinbein.chatmvc.example;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.flinbein.chatmvc.controller.Bind;
+import ru.flinbein.chatmvc.controller.Hide;
 import ru.flinbein.chatmvc.controller.MVCController;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+@Bind()
 public class ExampleInventoryController extends MVCController {
 
     public String mode = "inventoryView";
@@ -20,24 +26,32 @@ public class ExampleInventoryController extends MVCController {
         render("templates/controller_example.ftlx");
     }
 
-    @Bind()
     public void prevPage(int currentPage) {
         changePage(currentPage-1);
     }
 
-    @Bind()
     public void nextPage(int currentPage) {
         changePage(currentPage+1);
     }
 
-    @Bind()
+    public void setPage(String arg) {
+        changePage(Integer.parseInt(arg)-1);
+    }
+
+    @Hide()
+    public List<String> setPageTabComplete(String arg, String[] args) {
+        if (arg == null) return null;
+        if (args.length > 2) return null;
+        int pages = Math.abs(getPlayer().getInventory().getStorageContents().length / 9);
+        return IntStream.range(1, pages+1).mapToObj(Integer::toString).collect(Collectors.toList());
+    }
+
     public void backToInventory() {
         selectedItem = null;
         mode = "inventoryView";
         rerender();
     }
 
-    @Bind()
     public void selectItem(int itemSlot) {
         var item = getPlayer().getInventory().getItem(itemSlot);
         if (item == null) return;
@@ -46,7 +60,6 @@ public class ExampleInventoryController extends MVCController {
         rerender();
     }
 
-    @Bind()
     private void changePage(int page) {
         invPage = page;
         if (invPage < 0) invPage = 0;
