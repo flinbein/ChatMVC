@@ -38,9 +38,8 @@ public class ExampleInventoryController extends MVCController {
     }
 
     @Hide()
-    public List<String> setPageTabComplete(String arg, String[] args) {
+    public List<String> setPageTabComplete(String arg) {
         if (arg == null) return null;
-        if (args.length > 2) return null;
         int pages = Math.abs(getPlayer().getInventory().getStorageContents().length / 9);
         return IntStream.range(1, pages+1).mapToObj(Integer::toString).collect(Collectors.toList());
     }

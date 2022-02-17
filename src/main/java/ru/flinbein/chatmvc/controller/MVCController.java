@@ -82,9 +82,7 @@ public class MVCController {
         Method tabMethod = null;
         try {
             Class<?>[] parameterTypes = method.getParameterTypes();
-            Class<?>[] tabMethodTypes = Arrays.copyOf(parameterTypes, parameterTypes.length + 1);
-            tabMethodTypes[tabMethodTypes.length - 1] = String[].class;
-            tabMethod = this.getClass().getMethod(method.getName() + "TabComplete", tabMethodTypes);
+            tabMethod = this.getClass().getMethod(method.getName() + "TabComplete", parameterTypes);
         } catch (NoSuchMethodException ignored) {}
         Binding binding = new Binding(method, tabMethod, params, currentBindingVersion);
         var actionId = getNewActionId();
@@ -117,6 +115,23 @@ public class MVCController {
         return result;
     }
 
+    private boolean canTabComplete(Object[] originParams, String[] texts){
+        if (texts.length == 0) return false;
+        int inputIndex = texts.length-1;
+        for (Object originParam : originParams) {
+            if (originParam == dummyArguments) return true;
+            if (!(originParam instanceof String str)) continue;
+            try {
+                int index = Integer.parseInt(str);
+                if (index != inputIndex) continue;
+                if (dummyArguments[index] == originParam) return true;
+            } catch (Exception ignored) {
+                continue;
+            }
+        }
+        return false;
+    }
+
     @Hide()
     public final boolean onCommand(String actionId, String[] texts) {
         var binding = bindings.get(actionId);
@@ -138,13 +153,12 @@ public class MVCController {
     public final List<String> onTabComplete(String actionId, String[] texts){
         var binding = bindings.get(actionId);
         if (binding == null) return List.of();
+        if (!canTabComplete(binding.params, texts)) return List.of();
         Method tabMethod = binding.tabMethod;
         if (tabMethod == null) return null; // suggest players
         Object[] params = replaceParams(binding.params, texts);
         try {
-            Object[] tabParams = Arrays.copyOf(params, params.length + 1);
-            tabParams[tabParams.length - 1] = texts;
-            Object result = tabMethod.invoke(this, tabParams);
+            Object result = tabMethod.invoke(this, params);
             if (result == null) return List.of();
             return (List<String>) result;
         } catch (Exception e) {
