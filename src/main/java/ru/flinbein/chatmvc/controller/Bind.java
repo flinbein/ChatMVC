@@ -7,4 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface Bind {boolean value() default true;}
+public @interface Bind {
+    boolean value() default true;
+    String tab() default "";
+}

@@ -2,6 +2,7 @@ package ru.flinbein.chatmvc.example;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import ru.flinbein.chatmvc.controller.Bind;
 import ru.flinbein.chatmvc.controller.Hide;
 import ru.flinbein.chatmvc.controller.MVCController;
 
@@ -32,13 +33,14 @@ public class ExampleInventoryController extends MVCController {
         changePage(currentPage+1);
     }
 
+    @Bind(tab = "suggestPages")
     public void setPage(String arg) {
         if (arg == null) return;
         changePage(Integer.parseInt(arg)-1);
     }
 
     @Hide()
-    public List<String> setPageTabComplete(String arg) {
+    public List<String> suggestPages(String arg) {
         if (arg == null) return null;
         int pages = Math.abs(getPlayer().getInventory().getStorageContents().length / 9);
         return IntStream.range(1, pages+1).mapToObj(Integer::toString).collect(Collectors.toList());

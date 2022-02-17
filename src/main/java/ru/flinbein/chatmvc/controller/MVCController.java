@@ -82,7 +82,13 @@ public class MVCController {
         Method tabMethod = null;
         try {
             Class<?>[] parameterTypes = method.getParameterTypes();
-            tabMethod = this.getClass().getMethod(method.getName() + "TabComplete", parameterTypes);
+            String tabMethodName = method.getName() + "TabComplete";
+            Bind[] annotationsByType = method.getAnnotationsByType(Bind.class);
+            if (annotationsByType.length > 0) {
+                String bindTabValue = annotationsByType[0].tab();
+                if (!bindTabValue.isEmpty()) tabMethodName = bindTabValue;
+            }
+            tabMethod = this.getClass().getMethod(tabMethodName, parameterTypes);
         } catch (NoSuchMethodException ignored) {}
         Binding binding = new Binding(method, tabMethod, params, currentBindingVersion);
         var actionId = getNewActionId();
@@ -226,7 +232,7 @@ public class MVCController {
                         .throwing(method.getExceptionTypes())
                         .withoutCode();
                 if (bindRequired) {
-                    AnnotationDescription bindDesc = AnnotationDescription.Builder.ofType(Bind.class).define("value", true).build();
+                    AnnotationDescription bindDesc = AnnotationDescription.Builder.ofType(Bind.class).define("value", true).define("tab", "").build();
                     methodBuilder = methodBuilder.annotateMethod(bindDesc);
                 }
                 builder = methodBuilder;
