@@ -2,7 +2,6 @@ package ru.flinbein.chatmvc.example;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import ru.flinbein.chatmvc.controller.Bind;
 import ru.flinbein.chatmvc.controller.Hide;
 import ru.flinbein.chatmvc.controller.MVCController;
 
@@ -10,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-@Bind()
 public class ExampleInventoryController extends MVCController {
 
     public String mode = "inventoryView";
@@ -35,6 +33,7 @@ public class ExampleInventoryController extends MVCController {
     }
 
     public void setPage(String arg) {
+        if (arg == null) return;
         changePage(Integer.parseInt(arg)-1);
     }
 

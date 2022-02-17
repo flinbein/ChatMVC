@@ -43,7 +43,7 @@
             [&#x2190;]
             <hover-text>prev page</hover-text>
         </text>
-        =<text onclick="suggest:${render(args[0])} ">=</text>= Page
+        === Page
         <text onclick="suggest:${setPage(args[1])} setPage ${invPage+1}" color="yellow">
             ${invPage+1} / ${player.inventory.storageContents?size / 9}
             <hover-text text="click to set custom page" color="gold"/>

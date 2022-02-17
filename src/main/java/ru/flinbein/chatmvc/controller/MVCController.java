@@ -35,7 +35,9 @@ public class MVCController {
 
     public MVCController() {}
 
-    public final String[] getArgs(){ return dummyArguments; /*dummy method*/}
+    public final String[] getArgs(){
+        return dummyArguments;
+    }
 
     @Hide()
     public final void register(CommandSender sender, ClassLoader classLoader, String commandPrefixWithId) {
@@ -193,7 +195,10 @@ public class MVCController {
 
         private DummyInterfaceHolder(Class<? extends MVCController> controllerClass){
             DynamicType.Builder<?> builder = byteBuddy.makeInterface().name(this.getClass().getSimpleName() + "__EX");
-            boolean autoBindMethods = controllerClass.isAnnotationPresent(Bind.class);
+            Bind[] bindAnnotations = controllerClass.getAnnotationsByType(Bind.class);
+            boolean autoBindMethods = true;
+            if (bindAnnotations.length > 1) throw new RuntimeException("More than 1 @Bind(): "+controllerClass.getName());
+            if (bindAnnotations.length == 1 && !bindAnnotations[0].value()) autoBindMethods = false;
             Method[] methods = controllerClass.getMethods();
             for (Method method : methods) {
                 int modifiers = method.getModifiers();
@@ -209,7 +214,7 @@ public class MVCController {
                         .throwing(method.getExceptionTypes())
                         .withoutCode();
                 if (bindRequired) {
-                    AnnotationDescription bindDesc = AnnotationDescription.Builder.ofType(Bind.class).build();
+                    AnnotationDescription bindDesc = AnnotationDescription.Builder.ofType(Bind.class).define("value", true).build();
                     methodBuilder = methodBuilder.annotateMethod(bindDesc);
                 }
                 builder = methodBuilder;
@@ -218,11 +223,11 @@ public class MVCController {
         }
 
         private boolean bindRequired(Method method, boolean autoBindMethods){
-            if (method.isAnnotationPresent(Bind.class)) return true;
+            Bind[] bindAnnotations = method.getAnnotationsByType(Bind.class);
+            if (bindAnnotations.length > 1) throw new RuntimeException("More than 1 @Bind(): "+method.getDeclaringClass()+ " "+method.getName());
+            if (bindAnnotations.length == 1) return bindAnnotations[0].value();
             if (!autoBindMethods) return false;
-            Class<?> type = method.getReturnType();
-            if (!type.equals(void.class) && !BaseComponent.class.isAssignableFrom(type)) return false;
-            return !method.getName().startsWith("get");
+            return method.getReturnType().equals(void.class);
         }
     }
 
