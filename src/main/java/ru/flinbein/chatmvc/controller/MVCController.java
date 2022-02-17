@@ -213,18 +213,14 @@ public class MVCController {
 
         private DummyInterfaceHolder(Class<? extends MVCController> controllerClass){
             DynamicType.Builder<?> builder = byteBuddy.makeInterface().name(this.getClass().getSimpleName() + "__EX");
-            Bind[] bindAnnotations = controllerClass.getAnnotationsByType(Bind.class);
-            boolean autoBindMethods = true;
-            if (bindAnnotations.length > 1) throw new RuntimeException("More than 1 @Bind(): "+controllerClass.getName());
-            if (bindAnnotations.length == 1 && !bindAnnotations[0].value()) autoBindMethods = false;
             Method[] methods = controllerClass.getMethods();
             for (Method method : methods) {
                 int modifiers = method.getModifiers();
                 if (method.getDeclaringClass().equals(Object.class) && Modifier.isFinal(modifiers)) continue;
                 if (!Modifier.isPublic(modifiers)) continue;
                 if (method.isAnnotationPresent(Hide.class)) continue;
+                boolean bindRequired = bindRequired(method);
                 Class<?>[] parameterTypes = method.getParameterTypes();
-                boolean bindRequired = bindRequired(method, autoBindMethods);
                 var returnType = bindRequired ? String.class : method.getReturnType();
                 DynamicType.Builder.MethodDefinition<?> methodBuilder = builder
                         .defineMethod(method.getName(), returnType, Visibility.PUBLIC)
@@ -232,7 +228,7 @@ public class MVCController {
                         .throwing(method.getExceptionTypes())
                         .withoutCode();
                 if (bindRequired) {
-                    AnnotationDescription bindDesc = AnnotationDescription.Builder.ofType(Bind.class).define("value", true).define("tab", "").build();
+                    AnnotationDescription bindDesc = AnnotationDescription.Builder.ofType(Bind.class).define("value", "").define("tab", "").build();
                     methodBuilder = methodBuilder.annotateMethod(bindDesc);
                 }
                 builder = methodBuilder;
@@ -240,11 +236,8 @@ public class MVCController {
             ctrlInterface = builder.make().load(this.getClass().getClassLoader()).getLoaded();
         }
 
-        private boolean bindRequired(Method method, boolean autoBindMethods){
-            Bind[] bindAnnotations = method.getAnnotationsByType(Bind.class);
-            if (bindAnnotations.length > 1) throw new RuntimeException("More than 1 @Bind(): "+method.getDeclaringClass()+ " "+method.getName());
-            if (bindAnnotations.length == 1) return bindAnnotations[0].value();
-            if (!autoBindMethods) return false;
+        private boolean bindRequired(Method method){
+            if (method.isAnnotationPresent(Bind.class)) return true;
             return method.getReturnType().equals(void.class);
         }
     }

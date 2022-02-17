@@ -26,9 +26,8 @@
         <#assign inv = player.getInventory()>
         <#list invPage*9..(invPage*9)+8 as slot>
             <#assign item = inv.getItem(slot)!>
-            <#assign itemOnClick = item?has_content?then("run:"+selectItem(slot),"")>
             <text>[${slot}]: </text>
-            <@itemShort item=item onClick=itemOnClick />
+            <@itemShort item=item onClick=item?has_content?then("run:"+selectItem(slot),"") />
             <br/>
         </#list>
 
