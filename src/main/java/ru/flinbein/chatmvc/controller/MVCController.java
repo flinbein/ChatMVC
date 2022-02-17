@@ -125,9 +125,7 @@ public class MVCController {
                 int index = Integer.parseInt(str);
                 if (index != inputIndex) continue;
                 if (dummyArguments[index] == originParam) return true;
-            } catch (Exception ignored) {
-                continue;
-            }
+            } catch (Exception ignored) {}
         }
         return false;
     }

@@ -6,7 +6,6 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.md_5.bungee.api.chat.BaseComponent;
-
 import org.bukkit.plugin.Plugin;
 import org.xml.sax.SAXException;
 import ru.flinbein.chatmvc.xml.MVCXmlParser;

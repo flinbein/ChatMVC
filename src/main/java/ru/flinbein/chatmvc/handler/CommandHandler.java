@@ -4,7 +4,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.plugin.Plugin;
 import ru.flinbein.chatmvc.controller.MVCController;
 
 import java.util.Arrays;
