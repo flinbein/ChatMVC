@@ -5,7 +5,6 @@
 <#-- @ftlvariable name="" type="ru.flinbein.chatmvc.example.ExampleInventoryController" -->
 <text xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/flinbein/ChatMVC/master/src/main/resources/chatMVCSchema.xsd">
     <#list 1..12 as i><br/></#list> <#-- empty lines -->
-
     <text color="#b0fbff">
         Hello, <text text="${player.name}" color="blue"/>!<br/>
         This is an example of

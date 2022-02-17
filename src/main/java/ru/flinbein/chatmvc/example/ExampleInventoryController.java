@@ -4,13 +4,13 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import ru.flinbein.chatmvc.controller.Bind;
 import ru.flinbein.chatmvc.controller.Hide;
-import ru.flinbein.chatmvc.controller.MVCController;
+import ru.flinbein.chatmvc.controller.MVVMController;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ExampleInventoryController extends MVCController {
+public class ExampleInventoryController extends MVVMController {
 
     public String mode = "inventoryView";
     public int invPage = 0;

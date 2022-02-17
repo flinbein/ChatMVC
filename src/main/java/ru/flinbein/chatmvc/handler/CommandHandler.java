@@ -4,7 +4,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
-import ru.flinbein.chatmvc.controller.MVCController;
+import ru.flinbein.chatmvc.controller.MVVMController;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ public class CommandHandler implements TabExecutor {
     private int maxControllersPerSender = 5;
     private final String commandPrefix;
     // Player = [controllerId = MVCController]
-    private final HashMap<CommandSender, LinkedHashMap<String, MVCController>> senderControllerMap = new HashMap<>();
+    private final HashMap<CommandSender, LinkedHashMap<String, MVVMController>> senderControllerMap = new HashMap<>();
 
     public CommandHandler(PluginCommand command) {
         command.setExecutor(this);
@@ -39,7 +39,7 @@ public class CommandHandler implements TabExecutor {
         return Integer.toString(freeIntControllerId++, 32);
     }
 
-    public <T extends MVCController> T registerController(CommandSender sender, T controller, ClassLoader classLoader) {
+    public <T extends MVVMController> T registerController(CommandSender sender, T controller, ClassLoader classLoader) {
         var controllerMap = senderControllerMap.getOrDefault(sender, new LinkedHashMap<>());
         senderControllerMap.put(sender, controllerMap);
         if (controllerMap.size() > maxControllersPerSender) {
@@ -53,19 +53,19 @@ public class CommandHandler implements TabExecutor {
         return controller;
     }
 
-    public <T extends MVCController> T registerController(CommandSender sender, T controller) {
+    public <T extends MVVMController> T registerController(CommandSender sender, T controller) {
         return registerController(sender, controller, controller.getClass().getClassLoader());
     }
 
-    public <T extends MVCController> T registerController(CommandSender sender, T controller, Object plugin) {
+    public <T extends MVVMController> T registerController(CommandSender sender, T controller, Object plugin) {
         return registerController(sender, controller, plugin.getClass().getClassLoader());
     }
 
-    public <T extends MVCController> T registerController(CommandSender sender, T controller, Class<?> clazz) {
+    public <T extends MVVMController> T registerController(CommandSender sender, T controller, Class<?> clazz) {
         return registerController(sender, controller, clazz.getClassLoader());
     }
 
-    private MVCController getControllerForSender(CommandSender commandSender, String arg1) {
+    private MVVMController getControllerForSender(CommandSender commandSender, String arg1) {
         var controllerMap = senderControllerMap.get(commandSender);
         if (controllerMap == null || controllerMap.isEmpty()) return null;
         String[] splited = arg1.split(":");

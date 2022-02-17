@@ -15,7 +15,7 @@ import java.util.*;
 
 
 // only for chat.
-public class MVCController {
+public class MVVMController {
 
     private static final Map<Class<?>, DummyInterfaceHolder> dummyInterfaceHolders = new HashMap<>();
     private static final String[] dummyArguments = new String[100];
@@ -33,7 +33,7 @@ public class MVCController {
     private final HashMap<String, Binding> bindings = new HashMap<>();
     private Object proxyValue;
 
-    public MVCController() {}
+    public MVVMController() {}
 
     public final String[] getArgs(){
         return dummyArguments;
@@ -49,7 +49,7 @@ public class MVCController {
         this.commandSender = sender;
         this.commandPrefix = commandPrefixWithId;
         this.parser = TemplateParser.getForClassLoader(classLoader);
-        Class<? extends MVCController> controllerClass = this.getClass();
+        Class<? extends MVVMController> controllerClass = this.getClass();
         DummyInterfaceHolder dummyHolder = dummyInterfaceHolders.get(controllerClass);
         if (dummyHolder == null) {
             dummyHolder = new DummyInterfaceHolder(controllerClass);
@@ -77,8 +77,28 @@ public class MVCController {
 
     private long currentBindingVersion = 0;
 
+    private String registerBinding(Method method, Method tabMethod, Object[] params){
+        Binding newBinding = new Binding(method, tabMethod, params, currentBindingVersion);
+        String foundBinding = null;
+        for (var entry : bindings.entrySet()) {
+            Binding binding = entry.getValue();
+            if (binding.method != method) continue;
+            if (binding.tabMethod != tabMethod) continue;
+            if (!Arrays.equals(binding.params, params)) continue;
+            foundBinding = entry.getKey();
+            break;
+        }
+        if (foundBinding != null) {
+            bindings.put(foundBinding, newBinding);
+            return foundBinding;
+        }
+        String bindingKey = getNewActionId();
+        bindings.put(bindingKey, newBinding);
+        return bindingKey;
+    }
+
     @Hide()
-    public final String bind(Method method, Object... params) {
+    public final String createBinding(Method method, Object... params) {
         Method tabMethod = null;
         try {
             Class<?>[] parameterTypes = method.getParameterTypes();
@@ -90,9 +110,7 @@ public class MVCController {
             }
             tabMethod = this.getClass().getMethod(tabMethodName, parameterTypes);
         } catch (NoSuchMethodException ignored) {}
-        Binding binding = new Binding(method, tabMethod, params, currentBindingVersion);
-        var actionId = getNewActionId();
-        bindings.put(actionId, binding);
+        String actionId = registerBinding(method, tabMethod, params);
         return "/" + commandPrefix + ":" + actionId;
     }
 
@@ -198,20 +216,20 @@ public class MVCController {
 
         private Map<Method, Method> cacheMethods = new HashMap<>();
 
-        public Object callMethod(Method method, MVCController source, Object[] args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        public Object callMethod(Method method, MVVMController source, Object[] args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
             Method sourceMethod = cacheMethods.get(method);
             if (sourceMethod == null) {
                 sourceMethod = source.getClass().getMethod(method.getName(), method.getParameterTypes());
                 cacheMethods.put(method, sourceMethod);
             }
             if (method.isAnnotationPresent(Bind.class)) {
-                return source.bind(sourceMethod, args);
+                return source.createBinding(sourceMethod, args);
             } else {
                 return sourceMethod.invoke(source, args);
             }
         }
 
-        private DummyInterfaceHolder(Class<? extends MVCController> controllerClass){
+        private DummyInterfaceHolder(Class<? extends MVVMController> controllerClass){
             DynamicType.Builder<?> builder = byteBuddy.makeInterface().name(this.getClass().getSimpleName() + "__EX");
             Method[] methods = controllerClass.getMethods();
             for (Method method : methods) {
@@ -245,9 +263,9 @@ public class MVCController {
     private static class DummyHandler implements InvocationHandler {
 
         private final DummyInterfaceHolder interfaceHolder;
-        private final MVCController controller;
+        private final MVVMController controller;
 
-        public DummyHandler(DummyInterfaceHolder interfaceHolder, MVCController controller) {
+        public DummyHandler(DummyInterfaceHolder interfaceHolder, MVVMController controller) {
             this.interfaceHolder = interfaceHolder;
             this.controller = controller;
         }
