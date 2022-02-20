@@ -1,11 +1,15 @@
 package ru.flinbein.chatmvc.handler;
 
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
+import ru.flinbein.chatmvc.controller.Binding;
+import ru.flinbein.chatmvc.controller.DummyInvocationHandler;
 import ru.flinbein.chatmvc.controller.MVVMController;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -48,7 +52,7 @@ public class CommandHandler implements TabExecutor {
             // Controller on destroy?
         }
         var controllerId = getNewControllerId();
-        controller.register(sender, classLoader, commandPrefix + " " + controllerId);
+        controller.registerHandlerParameters(sender, classLoader, commandPrefix + " " + controllerId, dummyArguments);
         controllerMap.put(controllerId, controller);
         return controller;
     }
@@ -79,20 +83,46 @@ public class CommandHandler implements TabExecutor {
         if (strings.length == 0) return false;
         var controller = getControllerForSender(commandSender, strings[0]);
         if (controller == null) return false;
-        String[] splited = strings[0].split(":");
-        String actionId = splited[1];
+        String[] split = strings[0].split(":", 2);
+        String actionId = split[1];
         String[] texts = Arrays.copyOfRange(strings, 1, strings.length);
-        return controller.onCommand(actionId, texts);
+        Binding binding = controller.getProxyHandler().getNamedBinding(actionId);
+        if (binding == null) return false;
+        Method method = binding.method();
+        if (method == null) return false;
+        Object[] params = replaceParams(binding.params(), texts);
+        try {
+            Object result = method.invoke(controller, params);
+            if (result instanceof Boolean && result.equals(false)) return false;
+            if (result instanceof BaseComponent component) commandSender.spigot().sendMessage(component);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
     // strings[0] must be "controllerId:actionId"
     public List<String> handleTabComplete(CommandSender commandSender, String[] strings) {
         if (strings.length == 0) return null;
         var controller = getControllerForSender(commandSender, strings[0]);
         if (controller == null) return null;
-        String[] splited = strings[0].split(":");
-        String actionId = splited[1];
+        String[] split = strings[0].split(":");
+        String actionId = split[1];
         String[] texts = Arrays.copyOfRange(strings, 1, strings.length);
-        return controller.onTabComplete(actionId, texts);
+        Binding binding = controller.getProxyHandler().getNamedBinding(actionId);
+        if (binding == null) return null;
+        Method tabMethod = binding.tabMethod();
+        if (tabMethod == null) return null;
+        if (!canTabComplete(binding.params(), texts)) return List.of();
+        Object[] params = replaceParams(binding.params(), texts);
+        try {
+            Object result = tabMethod.invoke(controller, params);
+            if (result == null) return List.of();
+            return (List<String>) result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
     }
 
     @Override
@@ -103,5 +133,52 @@ public class CommandHandler implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender commandSender, Command command, String s, String[] strings) {
         return handleTabComplete(commandSender, strings);
+    }
+
+    private static final String[] dummyArguments = new String[100];
+    static {
+        for (var i=0; i<dummyArguments.length; i++){
+            dummyArguments[i] = String.valueOf(i);
+        }
+    }
+
+    private static Object[] replaceParams(Object[] originParams, String[] texts){
+        if (originParams == null) return new Object[0];
+        Object[] result = Arrays.copyOf(originParams, originParams.length);
+        for (var i=0; i<originParams.length; i++){
+            Object originParam = originParams[i];
+            if (originParam == dummyArguments) {
+                result[i] = texts;
+                continue;
+            }
+            if (originParam instanceof String str) {
+                try {
+                    int index = Integer.parseInt(str);
+                    if (dummyArguments[index] == originParam){
+                        if (index >= texts.length) {
+                            result[i] = null;
+                        } else {
+                            result[i] = texts[index];
+                        }
+                    }
+                } catch (Exception ignored) {}
+            }
+        }
+        return result;
+    }
+
+    private static boolean canTabComplete(Object[] originParams, String[] texts){
+        if (texts.length == 0) return false;
+        int inputIndex = texts.length-1;
+        for (Object originParam : originParams) {
+            if (originParam == dummyArguments) return true;
+            if (!(originParam instanceof String str)) continue;
+            try {
+                int index = Integer.parseInt(str);
+                if (index != inputIndex) continue;
+                if (dummyArguments[index] == originParam) return true;
+            } catch (Exception ignored) {}
+        }
+        return false;
     }
 }

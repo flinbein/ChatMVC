@@ -1,11 +1,5 @@
 package ru.flinbein.chatmvc.controller;
 
-import net.bytebuddy.ByteBuddy;
-import net.bytebuddy.ClassFileVersion;
-import net.bytebuddy.description.annotation.AnnotationDescription;
-import net.bytebuddy.description.modifier.Visibility;
-import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.scaffold.TypeValidation;
 import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.command.CommandSender;
 import ru.flinbein.chatmvc.template.TemplateParser;
@@ -17,21 +11,14 @@ import java.util.*;
 // only for chat.
 public class MVVMController {
 
-    private static final Map<Class<?>, DummyInterfaceHolder> dummyInterfaceHolders = new HashMap<>();
-    private static final String[] dummyArguments = new String[100];
-
-    static {
-        for (var i=0; i<dummyArguments.length; i++){
-            dummyArguments[i] = String.valueOf(i);
-        }
-    }
-
     public String commandPrefix;
     protected CommandSender commandSender;
     protected TemplateParser parser;
     private boolean registered = false;
     private final HashMap<String, Binding> bindings = new HashMap<>();
     private Object proxyValue;
+    private String[] dummyArguments = new String[100];
+    private DummyInvocationHandler proxyHandler;
 
     public MVVMController() {}
 
@@ -40,7 +27,7 @@ public class MVVMController {
     }
 
     @Hide()
-    public final void register(CommandSender sender, ClassLoader classLoader, String commandPrefixWithId) {
+    public final void registerHandlerParameters(CommandSender sender, ClassLoader classLoader, String commandPrefixWithId, String[] dummyArguments) {
         if (registered) {
             throw new RuntimeException("Controller already registered: "+commandPrefixWithId);
         }
@@ -49,230 +36,26 @@ public class MVVMController {
         this.commandSender = sender;
         this.commandPrefix = commandPrefixWithId;
         this.parser = TemplateParser.getForClassLoader(classLoader);
+        this.dummyArguments = dummyArguments;
         Class<? extends MVVMController> controllerClass = this.getClass();
-        DummyInterfaceHolder dummyHolder = dummyInterfaceHolders.get(controllerClass);
-        if (dummyHolder == null) {
-            dummyHolder = new DummyInterfaceHolder(controllerClass);
-            dummyInterfaceHolders.put(controllerClass, dummyHolder);
-        }
-        ClassLoader dummyClassLoader = dummyHolder.ctrlInterface.getClassLoader();
-        Class[] dummyClasses = {dummyHolder.ctrlInterface};
-        proxyValue = Proxy.newProxyInstance(dummyClassLoader, dummyClasses, new DummyHandler(dummyHolder, this));
+        DummyInterfaceHolder dummyHolder = DummyInterfaceHolder.getForClass(controllerClass);
+        proxyHandler = new DummyInvocationHandler(dummyHolder, this, commandPrefix, bindings);
+        proxyValue = dummyHolder.createProxy(proxyHandler);
     }
 
     @Hide()
-    public BaseComponent parsePattern(String fileName)  {
-        try {
-            return parser.parseTemplateToComponent(fileName, proxyValue);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    private int freeIntActionId = 1;
-    private String getNewActionId() {
-        return Integer.toString(freeIntActionId++, 32);
-    }
-
-    private long currentBindingVersion = 0;
-
-    private String registerBinding(Method method, Method tabMethod, Object[] params){
-        Binding newBinding = new Binding(method, tabMethod, params, currentBindingVersion);
-        String foundBinding = null;
-        for (var entry : bindings.entrySet()) {
-            Binding binding = entry.getValue();
-            if (binding.method != method) continue;
-            if (binding.tabMethod != tabMethod) continue;
-            if (!Arrays.equals(binding.params, params)) continue;
-            foundBinding = entry.getKey();
-            break;
-        }
-        if (foundBinding != null) {
-            bindings.put(foundBinding, newBinding);
-            return foundBinding;
-        }
-        String bindingKey = getNewActionId();
-        bindings.put(bindingKey, newBinding);
-        return bindingKey;
-    }
-
-    @Hide()
-    public final String createBinding(Method method, Object... params) {
-        Method tabMethod = null;
-        try {
-            Class<?>[] parameterTypes = method.getParameterTypes();
-            String tabMethodName = method.getName() + "TabComplete";
-            Bind[] annotationsByType = method.getAnnotationsByType(Bind.class);
-            if (annotationsByType.length > 0) {
-                String bindTabValue = annotationsByType[0].tab();
-                if (!bindTabValue.isEmpty()) tabMethodName = bindTabValue;
-            }
-            tabMethod = this.getClass().getMethod(tabMethodName, parameterTypes);
-        } catch (NoSuchMethodException ignored) {}
-        String actionId = registerBinding(method, tabMethod, params);
-        return "/" + commandPrefix + ":" + actionId;
-    }
-
-    private Object[] replaceParams(Object[] originParams, String[] texts){
-        if (originParams == null) return new Object[0];
-        Object[] result = Arrays.copyOf(originParams, originParams.length);
-        for (var i=0; i<originParams.length; i++){
-            Object originParam = originParams[i];
-            if (originParam == dummyArguments) {
-                result[i] = texts;
-                continue;
-            }
-            if (originParam instanceof String str) {
-                try {
-                    int index = Integer.parseInt(str);
-                    if (dummyArguments[index] == originParam){
-                        if (index >= texts.length) {
-                            result[i] = null;
-                        } else {
-                            result[i] = texts[index];
-                        }
-                    }
-                } catch (Exception ignored) {}
-            }
-        }
-        return result;
-    }
-
-    private boolean canTabComplete(Object[] originParams, String[] texts){
-        if (texts.length == 0) return false;
-        int inputIndex = texts.length-1;
-        for (Object originParam : originParams) {
-            if (originParam == dummyArguments) return true;
-            if (!(originParam instanceof String str)) continue;
-            try {
-                int index = Integer.parseInt(str);
-                if (index != inputIndex) continue;
-                if (dummyArguments[index] == originParam) return true;
-            } catch (Exception ignored) {}
-        }
-        return false;
-    }
-
-    @Hide()
-    public final boolean onCommand(String actionId, String[] texts) {
-        var binding = bindings.get(actionId);
-        if (binding == null) return false;
-        Method method = binding.method;
-        Object[] params = replaceParams(binding.params, texts);
-        try {
-            Object result = method.invoke(this, params);
-            if (result instanceof Boolean && result.equals(false)) return false;
-            if (result instanceof BaseComponent component) commandSender.spigot().sendMessage(component);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    @Hide()
-    public final List<String> onTabComplete(String actionId, String[] texts){
-        var binding = bindings.get(actionId);
-        if (binding == null) return List.of();
-        if (!canTabComplete(binding.params, texts)) return List.of();
-        Method tabMethod = binding.tabMethod;
-        if (tabMethod == null) return null; // suggest players
-        Object[] params = replaceParams(binding.params, texts);
-        try {
-            Object result = tabMethod.invoke(this, params);
-            if (result == null) return List.of();
-            return (List<String>) result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return List.of();
-        }
-    }
-
-    private void upgradeBindingsVersion(){
-        currentBindingVersion += 1;
-        Set<String> keysToRemove = new HashSet<>();
-        for (Map.Entry<String, Binding> e : bindings.entrySet()) {
-            Binding binding = e.getValue();
-            if (binding.version + 10 < currentBindingVersion) keysToRemove.add(e.getKey());
-        }
-        for (String key : keysToRemove) bindings.remove(key);
+    public final DummyInvocationHandler getProxyHandler(){
+        return proxyHandler;
     }
 
     @Bind()
-    public final void render(String patternFileName) {
-        upgradeBindingsVersion();
-        BaseComponent baseComponent = parsePattern(patternFileName);
-        commandSender.spigot().sendMessage(baseComponent);
-    }
-
-    record Binding(Method method, Method tabMethod, Object[] params, long version) {}
-
-    private static class DummyInterfaceHolder {
-
-        static ByteBuddy byteBuddy = new ByteBuddy(ClassFileVersion.ofThisVm()).with(TypeValidation.DISABLED);
-
-        private Class<?> ctrlInterface;
-
-        private Map<Method, Method> cacheMethods = new HashMap<>();
-
-        public Object callMethod(Method method, MVVMController source, Object[] args) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
-            Method sourceMethod = cacheMethods.get(method);
-            if (sourceMethod == null) {
-                sourceMethod = source.getClass().getMethod(method.getName(), method.getParameterTypes());
-                cacheMethods.put(method, sourceMethod);
-            }
-            if (method.isAnnotationPresent(Bind.class)) {
-                return source.createBinding(sourceMethod, args);
-            } else {
-                return sourceMethod.invoke(source, args);
-            }
-        }
-
-        private DummyInterfaceHolder(Class<? extends MVVMController> controllerClass){
-            DynamicType.Builder<?> builder = byteBuddy.makeInterface().name(this.getClass().getSimpleName() + "__EX");
-            Method[] methods = controllerClass.getMethods();
-            for (Method method : methods) {
-                int modifiers = method.getModifiers();
-                if (method.getDeclaringClass().equals(Object.class) && Modifier.isFinal(modifiers)) continue;
-                if (!Modifier.isPublic(modifiers)) continue;
-                if (method.isAnnotationPresent(Hide.class)) continue;
-                boolean bindRequired = bindRequired(method);
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                var returnType = bindRequired ? String.class : method.getReturnType();
-                DynamicType.Builder.MethodDefinition<?> methodBuilder = builder
-                        .defineMethod(method.getName(), returnType, Visibility.PUBLIC)
-                        .withParameters(parameterTypes)
-                        .throwing(method.getExceptionTypes())
-                        .withoutCode();
-                if (bindRequired) {
-                    AnnotationDescription bindDesc = AnnotationDescription.Builder.ofType(Bind.class).define("value", "").define("tab", "").build();
-                    methodBuilder = methodBuilder.annotateMethod(bindDesc);
-                }
-                builder = methodBuilder;
-            }
-            ctrlInterface = builder.make().load(this.getClass().getClassLoader()).getLoaded();
-        }
-
-        private boolean bindRequired(Method method){
-            if (method.isAnnotationPresent(Bind.class)) return true;
-            return method.getReturnType().equals(void.class);
-        }
-    }
-
-    private static class DummyHandler implements InvocationHandler {
-
-        private final DummyInterfaceHolder interfaceHolder;
-        private final MVVMController controller;
-
-        public DummyHandler(DummyInterfaceHolder interfaceHolder, MVVMController controller) {
-            this.interfaceHolder = interfaceHolder;
-            this.controller = controller;
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            return interfaceHolder.callMethod(method, controller, args);
+    public final void render(String templatePath) {
+        proxyHandler.upgradeBindingsVersion();
+        try {
+            BaseComponent baseComponent = parser.parseTemplateToComponent(templatePath, proxyValue);
+            commandSender.spigot().sendMessage(baseComponent);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

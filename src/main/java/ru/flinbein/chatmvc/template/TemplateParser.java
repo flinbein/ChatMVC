@@ -6,6 +6,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.md_5.bungee.api.chat.BaseComponent;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.xml.sax.SAXException;
 import ru.flinbein.chatmvc.xml.MVCXmlParser;
@@ -13,6 +14,8 @@ import ru.flinbein.chatmvc.xml.MVCXmlParser;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class TemplateParser {
 
@@ -46,8 +49,8 @@ public class TemplateParser {
     }
 
 
-    public InputStream parseTemplateToXml(String templateName, Object model) throws IOException {
-        Template temp = templateConfig.getTemplate(templateName);
+    public InputStream parseTemplateToXml(String templatePath, Object model) throws IOException {
+        Template temp = templateConfig.getTemplate(templatePath);
         PipedOutputStream outputStream = new PipedOutputStream();
         PipedInputStream pipedInputStream = new PipedInputStream(outputStream);
         new Thread(() -> {
@@ -60,14 +63,30 @@ public class TemplateParser {
         return pipedInputStream;
     }
 
-    public BaseComponent parseTemplateToComponent(String fileName, Object model){
-        try (
-            var input = parseTemplateToXml(fileName, model);
-        ) {
+    public BaseComponent parseTemplateToComponent(String templatePath, Object model){
+        try (var input = parseTemplateToXml(templatePath, model)) {
             return xmlParser.parse(input);
         } catch (IOException|SAXException exception) {
-           throw new RuntimeException("ChatMVC template parse error: "+fileName, exception);
+            throw new RuntimeException("ChatMVC template parse error: "+templatePath, exception);
         }
+    }
+
+    public static void parseTemplateToComponent(String templatePath, Object model, Plugin plugin, BiConsumer<BaseComponent, Throwable> task){
+        TemplateParser parser = TemplateParser.getForPlugin(plugin);
+        new Thread(() -> {
+            try {
+                var component = parser.parseTemplateToComponent(templatePath, model);
+                Bukkit.getScheduler().runTask(plugin, () -> task.accept(component, null));
+            } catch (Throwable error) {
+                task.accept(null, error);
+            }
+        });
+    }
+
+    public static void parseTemplateToComponent(String templatePath, Object model, Plugin plugin, Consumer<BaseComponent> task){
+        parseTemplateToComponent(templatePath, model, plugin, ((component, throwable) -> {
+            if (component != null) task.accept(component);
+        }));
     }
 
 
