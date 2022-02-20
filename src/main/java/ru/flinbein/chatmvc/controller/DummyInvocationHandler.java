@@ -71,12 +71,12 @@ public class DummyInvocationHandler implements InvocationHandler {
     }
 
     private long currentBindingVersion = 0;
-    public void upgradeBindingsVersion(){
+    public synchronized void upgradeBindingsVersion(){
         currentBindingVersion += 1;
         Set<String> keysToRemove = new HashSet<>();
         for (Map.Entry<String, Binding> e : bindings.entrySet()) {
             Binding binding = e.getValue();
-            if (binding.version() + 10 < currentBindingVersion) keysToRemove.add(e.getKey());
+            if (binding.version() + 20 < currentBindingVersion) keysToRemove.add(e.getKey());
         }
         for (String key : keysToRemove) bindings.remove(key);
     }

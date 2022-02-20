@@ -6,7 +6,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
 import ru.flinbein.chatmvc.controller.Binding;
-import ru.flinbein.chatmvc.controller.DummyInvocationHandler;
 import ru.flinbein.chatmvc.controller.MVVMController;
 
 import java.lang.reflect.Method;

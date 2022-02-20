@@ -39,12 +39,16 @@ public class MVVMController {
 
     @Bind()
     public final void render(String templatePath) {
-        proxyHandler.upgradeBindingsVersion();
-        try {
-            BaseComponent baseComponent = parser.parseTemplateToComponent(templatePath, proxyValue);
-            commandSender.spigot().sendMessage(baseComponent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        new Thread(() -> {
+            synchronized (this) {
+                proxyHandler.upgradeBindingsVersion();
+                try {
+                    BaseComponent baseComponent = parser.parseTemplateToComponent(templatePath, proxyValue);
+                    commandSender.spigot().sendMessage(baseComponent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 }

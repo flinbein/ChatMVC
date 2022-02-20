@@ -31,6 +31,8 @@
         <spigot-api-version>1.15</spigot-api-version>
         <plugin-description>Chat MVC</plugin-description>
         <plugin-version>DEV-SNAPSHOT</plugin-version>
+        <freemarker-version>2.3.31</freemarker-version>
+        <bytebuddy-version>1.12.8</bytebuddy-version>
     </properties>
 
     <repositories>
@@ -54,17 +56,16 @@
             <version>${bungeecord-chat-version}</version>
             <scope>provided</scope>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
         <dependency>
             <groupId>org.freemarker</groupId>
             <artifactId>freemarker</artifactId>
-            <version>2.3.31</version>
+            <version>${freemarker-version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>LATEST</version>
+            <version>${bytebuddy-version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
