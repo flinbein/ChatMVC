@@ -2,20 +2,25 @@ package ru.flinbein.chatmvc.controller;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.*;
 
 public class DummyInvocationHandler implements InvocationHandler {
 
     private final DummyInterfaceHolder interfaceHolder;
     private final MVVMController controller;
-    private final HashMap<String, Binding> bindings;
     private final String commandPrefix;
+    private final HashMap<String, Binding> bindings = new HashMap<>();
 
-    public DummyInvocationHandler(DummyInterfaceHolder interfaceHolder, MVVMController controller, String commandPrefix, HashMap<String, Binding> bindings) {
-        this.interfaceHolder = interfaceHolder;
+    public DummyInvocationHandler(MVVMController controller, String commandPrefix) {
+        this.interfaceHolder = DummyInterfaceHolder.getForClass(controller.getClass());
         this.controller = controller;
         this.commandPrefix = commandPrefix;
-        this.bindings = bindings;
+    }
+
+    public Object createProxy(){
+        Class<?> dummyInterface = interfaceHolder.getDummyInterface();
+        return Proxy.newProxyInstance(dummyInterface.getClassLoader(), new Class[]{dummyInterface}, this);
     }
 
     @Override

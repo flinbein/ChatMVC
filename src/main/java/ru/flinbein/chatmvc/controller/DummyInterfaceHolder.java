@@ -28,10 +28,6 @@ public class DummyInterfaceHolder {
         return dummyInterface;
     }
 
-    public Object createProxy(InvocationHandler proxyHandler){
-        return Proxy.newProxyInstance(dummyInterface.getClassLoader(), new Class[]{dummyInterface}, proxyHandler);
-    }
-
     public Method getCachedMethod(Method proxyMethod) throws NoSuchMethodException {
         Method result = cacheMethods.get(proxyMethod);
         if (result != null) return result;
