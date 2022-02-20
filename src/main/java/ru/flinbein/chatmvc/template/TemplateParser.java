@@ -80,7 +80,7 @@ public class TemplateParser {
             } catch (Throwable error) {
                 task.accept(null, error);
             }
-        });
+        }).start();
     }
 
     public static void parseTemplateToComponent(String templatePath, Object model, Plugin plugin, Consumer<BaseComponent> task){
